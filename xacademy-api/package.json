@@ -1,0 +1,53 @@
+{
+  "name": "xacademy-api",
+  "version": "1.0.0",
+  "description": "API REST para la gestión de jugadores FIFA - XAcademy 2026",
+  "keywords": [
+    "fifa",
+    "api",
+    "express",
+    "nodejs",
+    "mysql",
+    "sequelize",
+    "xacademy"
+  ],
+  "homepage": "https://github.com/MaxiiFanara/xacademy-DEV-2026#readme",
+  "bugs": {
+    "url": "https://github.com/MaxiiFanara/xacademy-DEV-2026/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/MaxiiFanara/xacademy-DEV-2026.git"
+  },
+  "license": "MIT",
+  "author": "Maximiliano Fanara",
+  "type": "commonjs",
+  "main": "src/app.js",
+  "scripts": {
+    "start": "node src/app.js",
+    "dev": "nodemon src/app.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "bcrypt": "^6.0.0",
+    "compression": "^1.8.1",
+    "cookie-parser": "^1.4.7",
+    "cors": "^2.8.6",
+    "dotenv": "^17.4.2",
+    "express": "^5.2.1",
+    "express-validator": "^7.3.2",
+    "helmet": "^8.2.0",
+    "jsonwebtoken": "^9.0.3",
+    "morgan": "^1.10.1",
+    "mysql2": "^3.22.3",
+    "nodemailer": "^8.0.7",
+    "passport": "^0.7.0",
+    "passport-github2": "^0.1.12",
+    "passport-google-oauth20": "^2.0.0",
+    "passport-jwt": "^4.0.1",
+    "sequelize": "^6.37.8",
+    "swagger-jsdoc": "^6.3.0",
+    "swagger-ui-express": "^5.0.1",
+    "winston": "^3.19.0"
+  }
+}
