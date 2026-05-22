@@ -1,0 +1,26 @@
+# ============================================================
+# XAcademy FIFA — .gitignore
+# ============================================================
+
+# ── Dependencias ─────────────────────────────────────────────
+xacademy-api/node_modules/
+xacademy-webpage/node_modules/
+
+# ── Variables de entorno (NUNCA subir al repo) ───────────────
+.env
+xacademy-api/.env
+xacademy-webpage/.env
+
+# ── Logs generados en runtime ────────────────────────────────
+xacademy-api/logs/*.log
+
+# ── Build de Angular ─────────────────────────────────────────
+xacademy-webpage/dist/
+
+# ── Sistema operativo ────────────────────────────────────────
+.DS_Store
+Thumbs.db
+
+# ── IDEs ─────────────────────────────────────────────────────
+.vscode/
+.idea/
