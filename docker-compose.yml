@@ -1,0 +1,80 @@
+services:
+  # ==========================================
+  # MYSQL
+  # ==========================================
+  db:
+    image: mysql:8.0
+    container_name: fifa-db
+    restart: always
+    ports:
+      - "${DB_PORT}:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
+      MYSQL_DATABASE: ${DB_NAME}
+    command: --default-authentication-plugin=mysql_native_password
+    volumes:
+      - ./xacademy-database/init.sql:/docker-entrypoint-initdb.d/init.sql
+      - fifa-db-data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${DB_PASSWORD}"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+    networks:
+      - fifa-network
+
+  # ==========================================
+  # API NODE
+  # ==========================================
+  api:
+    build:
+      context: ./xacademy-api
+      dockerfile: Dockerfile
+    container_name: fifa-api
+    restart: always
+    ports:
+      - "${PORT}:${PORT}"
+    volumes:
+      - ./xacademy-api:/api # Ajusta '/app' a la ruta de tu WORKDIR en tu Dockerfile
+      - /api/node_modules
+    environment:
+      - PORT=${PORT}
+      - NODE_ENV=${NODE_ENV}
+      - DB_HOST=db
+      - DB_PORT=3306
+      - DB_NAME=${DB_NAME}
+      - DB_USER=${DB_USER}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - DB_DIALECT=${DB_DIALECT}
+      - JWT_SECRET=${JWT_SECRET}
+      - JWT_EXPIRES_IN=${JWT_EXPIRES_IN}
+      - GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID}
+      - GOOGLE_CLIENT_SECRET=${GOOGLE_CLIENT_SECRET}
+      - GOOGLE_CALLBACK_URL=${GOOGLE_CALLBACK_URL}
+      - GITHUB_CLIENT_ID=${GITHUB_CLIENT_ID}
+      - GITHUB_CLIENT_SECRET=${GITHUB_CLIENT_SECRET}
+      - GITHUB_CALLBACK_URL=${GITHUB_CALLBACK_URL}
+      - MAIL_HOST=${MAIL_HOST}
+      - MAIL_PORT=${MAIL_PORT}
+      - MAIL_USER=${MAIL_USER}
+      - MAIL_PASSWORD=${MAIL_PASSWORD}
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+    depends_on:
+      db:
+        condition: service_healthy   # ← espera al healthcheck
+    networks:
+      - fifa-network
+
+  # ==========================================
+  # REDES
+  # ==========================================
+networks:
+  fifa-network:
+    driver: bridge
+
+  # ==========================================
+  # VOLUMENES
+  # ==========================================
+volumes:
+  fifa-db-data:
