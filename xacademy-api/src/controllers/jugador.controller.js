@@ -49,6 +49,42 @@ class JugadorController extends BaseController {
     }
   };
 
+  create = async (req, res) => {
+    try {
+      console.log(req.body);
+      const result = await this.service.crearJugador(req.body);
+      res.status(201).json(result);
+    } catch (error) {
+      const clientErrors = [
+        'exactamente una posición principal',
+        'posiciones repetidas',
+        'valores de las skills',
+        'calificación no coincide',
+        'Ya existe un jugador',
+      ];
+      const esErrorCliente = clientErrors.some(msg => error.message.includes(msg));
+      res.status(esErrorCliente ? 400 : 500).json({ error: error.message });
+    }
+  };
+
+  update = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const result = await this.service.actualizarJugador(id, req.body);
+    res.status(200).json(result);
+  } catch (error) {
+    const clientErrors = [
+      'no encontrado',
+      'exactamente una posición principal',
+      'posiciones repetidas',
+      'valores de las skills',
+      'calificación no coincide',
+    ];
+    const esErrorCliente = clientErrors.some(msg => error.message.includes(msg));
+    res.status(esErrorCliente ? 400 : 500).json({ error: error.message });
+  }
+};
+
 
 
 }

@@ -12,7 +12,7 @@ const setTokenCookies = (res, accessToken, refreshToken) => {
   res.cookie('access_token',  accessToken,  { ...COOKIE_OPTIONS, maxAge: 24 * 60 * 60 * 1000 });
   res.cookie('refresh_token', refreshToken, { ...COOKIE_OPTIONS, maxAge: 7 * 24 * 60 * 60 * 1000 });
 };
-
+/*
 // Renueva silenciosamente si el access expiró pero el refresh es válido
 export const silentRefresh = async (req, res, next) => {
   const accessToken  = req.signedCookies.access_token;
@@ -28,6 +28,26 @@ export const silentRefresh = async (req, res, next) => {
     req.cookies.access_token = newAccess; // lo inyectamos para que passport lo lea en este mismo request
   } catch {
     // refresh expirado o inválido, limpiamos y dejamos pasar (requireAuth lo bloqueará si la ruta lo exige)
+    res.clearCookie('access_token');
+    res.clearCookie('refresh_token');
+  }
+
+  next();
+};
+*/
+
+export const silentRefresh = async (req, res, next) => {
+  try {
+    const accessToken  = req.signedCookies?.access_token;
+    const refreshToken = req.signedCookies?.refresh_token;
+
+    if (accessToken) return next();
+    if (!refreshToken) return next();
+
+    const { accessToken: newAccess, refreshToken: newRefresh } = await authService.refreshFromToken(refreshToken);
+    setTokenCookies(res, newAccess, newRefresh);
+    req.cookies.access_token = newAccess;
+  } catch {
     res.clearCookie('access_token');
     res.clearCookie('refresh_token');
   }

@@ -4,6 +4,16 @@ class SkillController extends BaseController {
   constructor(skillService) {   // ← recibe el servicio inyectado
     super(skillService);
   }
+
+   getAll = async (req, res) => {
+    try {
+      const { esArquero } = req.query;
+      const result = await this.service.getByTipo(esArquero);
+      res.status(200).json(result);
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
+  };
 }
 
 export default SkillController;
