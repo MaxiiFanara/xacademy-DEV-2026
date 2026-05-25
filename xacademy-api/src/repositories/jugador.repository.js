@@ -1,5 +1,5 @@
 import BaseRepository from '../core/base.repository.js';
-import { JugadorModel,VwListadoJugadores } from '../db/models/index.js';
+import { JugadorModel,VwListadoJugadores,VwDetalleJugador,VwEvolucionSkillJugador} from '../db/models/index.js';
 
 class JugadorRepository extends BaseRepository {
 constructor() {
@@ -22,6 +22,24 @@ constructor() {
       data: rows,
     };
   }
+
+  async findDetailById(id) {
+    const rows = await VwDetalleJugador.findAll({
+      where: { IdVersionJugador: id },
+    });
+    return rows;  // devuelve las N filas crudas, el service las agrupa
+  }
+
+   async findEvolucionSkill(idJugador, idSkill) {
+    const rows = await VwEvolucionSkillJugador.findAll({
+      where: { IdJugador: idJugador, IdSkill: idSkill },
+      order: [['AnioJuego', 'ASC']],
+    });
+    return rows;
+  }
+
+
+
 }
 
 export default JugadorRepository;

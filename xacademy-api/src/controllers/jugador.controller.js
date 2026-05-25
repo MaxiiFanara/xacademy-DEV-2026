@@ -20,6 +20,37 @@ class JugadorController extends BaseController {
       res.status(500).json({ error: error.message });
     }
   };
+
+  getById = async (req, res) => {
+    try {
+      const { id } = req.params;
+      const result = await this.service.getDetailById(id);
+      res.status(200).json(result);
+    } catch (error) {
+      if (error.message === 'Jugador no encontrado') {
+        return res.status(404).json({ error: error.message });
+      }
+      res.status(500).json({ error: error.message });
+    }
+  };
+
+  getEvolucionSkill = async (req, res) => {
+    try {
+      const { id }     = req.params;
+      const { skillId } = req.query;
+
+      const result = await this.service.getEvolucionSkill(id, skillId);
+      res.status(200).json(result);
+    } catch (error) {
+      if (error.message.includes('requerido') || error.message.includes('No se encontró')) {
+        return res.status(404).json({ error: error.message });
+      }
+      res.status(500).json({ error: error.message });
+    }
+  };
+
+
+
 }
 
 export default JugadorController;

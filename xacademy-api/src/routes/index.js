@@ -7,11 +7,13 @@ import nacionalidadRoutes from './nacionalidad.routes.js';
 import posicionRoutes from './posicion.routes.js';
 import skillRoutes from './skill.routes.js';
 import versionRoutes from './version.routes.js';
+import authRoutes from './auth.routes.js';
 
 const router = Router();
 
 router.use('/liga', ligaRoutes);
 router.use('/club', clubRoutes);
+router.use('/auth', authRoutes);
 router.use('/jugador', jugadorRoutes);
 router.use('/nacionalidad', nacionalidadRoutes);
 router.use('/posicion', posicionRoutes);

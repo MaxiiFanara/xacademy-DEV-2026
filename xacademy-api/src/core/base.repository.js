@@ -1,4 +1,5 @@
-// src/core/BaseRepository.js
+// src/core/base.repository.js
+import { Op } from 'sequelize';
 
 class BaseRepository {
   constructor(model) {
@@ -11,6 +12,14 @@ class BaseRepository {
 
   async findById(id, options = {}) {
     return await this.model.findByPk(id, options);
+  }
+
+    // Busca por cualquier campo: findByField('Email', 'messi@psg.com')
+  async findByField(field, value, options = {}) {
+    return await this.model.findOne({
+      where: { [field]: value },
+      ...options,
+    });
   }
 
   async create(data) {

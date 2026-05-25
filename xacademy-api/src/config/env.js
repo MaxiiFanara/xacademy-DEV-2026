@@ -18,6 +18,8 @@ export const env = {
     DIALECT: process.env.DB_DIALECT || 'mysql',
   },
 
+  COOKIE_SECRET: process.env.COOKIE_SECRET || 'un_secreto_largo_para_firmar_cookies',
+
   // ── Autenticación (JWT) ──────────────────────────────────
   JWT: {
     SECRET: process.env.JWT_SECRET || 'default_jwt_secret',

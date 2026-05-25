@@ -11,6 +11,8 @@ import VersionJugadorModel from './versionJugador.model.js';
 import VersionJugadorPosicionModel from './versionJugadorPosicion.model.js';
 import VersionJugadorSkillModel from './versionJugadorSkill.model.js';
 import {VwListadoJugadores} from './VwListadoJugadores.js';
+import {VwDetalleJugador} from './VwDetalleJugador.js';
+import {VwEvolucionSkillJugador} from './VwEvolucionSkillJugador.js';
 // ============================================================
 // CONFIGURACIÓN DE ASOCIACIONES (Relaciones)
 // Si más adelante necesitas definir las relaciones (hasMany, belongsTo),
@@ -30,4 +32,6 @@ export {
   VersionJugadorPosicionModel,
   VersionJugadorSkillModel,
   VwListadoJugadores,
+  VwDetalleJugador,
+  VwEvolucionSkillJugador,
 };
