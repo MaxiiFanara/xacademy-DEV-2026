@@ -22,7 +22,11 @@ app.use(express.urlencoded({ extended: true }));  // ← después de helmet
 app.use(cookieParser(env.COOKIE_SECRET));
 app.use(passport.initialize());
 app.use(silentRefresh);
-
+app.use((req, res, next) => {
+  console.log('LLEGÓ DESPUÉS DE SILENT REFRESH'); // ← agregá esto
+  next();
+});
+app.use('/api', indexRoutes);
 app.use('/api', indexRoutes);
 
 export default app;

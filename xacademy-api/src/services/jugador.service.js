@@ -1,14 +1,28 @@
 import BaseService from '../core/base.service.js';
 
 class JugadorService extends BaseService {
-constructor(jugadorRepository) {
+constructor(jugadorRepository, authRepository) {
     super(jugadorRepository);
+    this.authRepository = authRepository;
   }
 
-  async getAll({ page, limit } = {}) {
-    return await this.repository.findAll({ page, limit });
+async getAll({ page, limit, versionId, esHombre, creadoPorMi, usuarioEmail } = {}) {
+  let idUsuarioCreador;
+
+  if (creadoPorMi === 'true' || creadoPorMi === true) {
+    const usuario = await this.authRepository.findByEmail(usuarioEmail); // ← this
+    if (!usuario) throw new Error('Usuario no encontrado');
+    idUsuarioCreador = usuario.Id;
   }
 
+  return await this.repository.findAll({
+    page,
+    limit,
+    versionId,
+    esHombre,
+    idUsuarioCreador,
+  });
+}
   async getDetailById(id) {
     const rows = await this.repository.findDetailById(id);
 
@@ -54,10 +68,10 @@ constructor(jugadorRepository) {
   }
 
 
-  async crearJugador(body) {
+  async crearJugador(body, usuarioActivo) {
     const {
       nombre, apellido, fechaNacimiento, esHombre,
-      idNacionalidad, idUsuarioCreador,
+      idNacionalidad,
       idVersion, idClub, imagenUrl,
       posiciones, skills, calificacion,
     } = body;
@@ -95,28 +109,28 @@ constructor(jugadorRepository) {
     }
 
     // 6. Ejecutar transacción
-    return await this.repository.crearCompleto({
-      jugador: {
-  Nombre:           nombre,
-  Apellido:         apellido,
-  FechaNacimiento:  fechaNacimiento || null,
-  EsHombre:         esHombre,
-  EsRetirado:       false,        // ← explícito
-  AnioRetiro:       null,         // ← explícito
-  EsDelJuegoBase:   false,        // ← explícito
-  EsActivo:         true,         // ← explícito
-  IdNacionalidad:   idNacionalidad,
-  IdUsuarioCreador: idUsuarioCreador || null,
-},
-      versionJugador: {
-        IdVersion:    idVersion,
-        IdClub:       idClub,
-        ImagenUrl:    imagenUrl || null,
-        Calificacion: calificacionCalculada,
-      },
-      posiciones,
-      skills,
-    });
+ return await this.repository.crearCompleto({
+    jugador: {
+      Nombre:           nombre,
+      Apellido:         apellido,
+      FechaNacimiento:  fechaNacimiento || null,
+      EsHombre:         esHombre,
+      EsRetirado:       false,
+      AnioRetiro:       null,
+      EsDelJuegoBase:   false,
+      EsActivo:         true,
+      IdNacionalidad:   idNacionalidad,
+      IdUsuarioCreador: usuarioActivo.Id,  // ← viene del JWT, no del body
+    },
+    versionJugador: {
+      IdVersion:    idVersion,
+      IdClub:       idClub,
+      ImagenUrl:    imagenUrl || null,
+      Calificacion: calificacionCalculada,
+    },
+    posiciones,
+    skills,
+  });
   }
 
 async actualizarJugador(idVersionJugador, body) {

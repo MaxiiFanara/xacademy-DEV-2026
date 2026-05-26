@@ -1,12 +1,11 @@
 import UsuarioRepository from '../repositories/usuario.repository.js';
 import UsuarioService from '../services/usuario.service.js';
 import UsuarioController from '../controllers/usuario.controller.js';
-
 // 1. Instanciamos el repositorio (capa más profunda)
 const usuarioRepository = new UsuarioRepository();
 
 // 2. Instanciamos el servicio inyectándole el repositorio
-const usuarioService = new UsuarioService(usuarioRepository);
+const usuarioService = new UsuarioService(usuarioRepository); // ← inyectamos authRepository para que el service pueda buscar el Id del usuario creador por email
 
 // 3. Instanciamos el controlador inyectándole el servicio
 const usuarioController = new UsuarioController(usuarioService);

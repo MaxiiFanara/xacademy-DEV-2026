@@ -9,22 +9,28 @@ constructor() {
     super(JugadorModel);
   }
 
-  async findAll({ page = 1, limit = 20 } = {}) {
-    const offset = (page - 1) * limit;
+  async findAll({ page = 1, limit = 20, versionId, esHombre, idUsuarioCreador } = {}) {
+  const offset = (page - 1) * limit;
+  const where  = {};
 
-    const { count, rows } = await VwListadoJugadores.findAndCountAll({
-      limit,
-      offset,
-    });
+  if (versionId !== undefined)      where.IdVersion        = versionId;
+  if (esHombre  !== undefined)      where.EsHombre         = esHombre === 'true' || esHombre === true;
+  if (idUsuarioCreador !== undefined) where.IdUsuarioCreador = idUsuarioCreador;
 
-    return {
-      total: count,
-      totalPages: Math.ceil(count / limit),
-      currentPage: page,
-      perPage: limit,
-      data: rows,
-    };
-  }
+  const { count, rows } = await VwListadoJugadores.findAndCountAll({
+    where,
+    limit,
+    offset,
+  });
+
+  return {
+    total:       count,
+    totalPages:  Math.ceil(count / limit),
+    currentPage: page,
+    perPage:     limit,
+    data:        rows,
+  };
+}
 
   // src/repositories/jugador.repository.js
 async findVersionJugadorById(idVersionJugador) {
