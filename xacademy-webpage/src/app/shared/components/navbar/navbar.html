@@ -1,0 +1,19 @@
+<p-toolbar>
+  <ng-template #start>
+    <span class="navbar-brand">XAcademy FIFA</span>
+  </ng-template>
+
+  <ng-template #end>
+    @if (user()) {
+      <div class="navbar-user">
+        <span class="username">{{ user()?.nombreUsuario }}</span>
+        <p-button
+          label="Cerrar sesión"
+          severity="danger"
+          size="small"
+          (onClick)="logout()"
+        />
+      </div>
+    }
+  </ng-template>
+</p-toolbar>

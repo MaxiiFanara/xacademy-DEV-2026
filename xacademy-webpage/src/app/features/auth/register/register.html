@@ -1,0 +1,140 @@
+<div class="register-container">
+  <p-card>
+
+    <ng-template #title>
+      <h2 class="register-title">XAcademy FIFA</h2>
+    </ng-template>
+
+    <ng-template #subtitle>
+      <p class="register-subtitle">Creá tu cuenta para acceder</p>
+    </ng-template>
+
+    <ng-template #content>
+      <form [formGroup]="registerForm" (ngSubmit)="onSubmit()">
+
+        <!-- NOMBRE -->
+        <div class="field">
+          <label>Nombre</label>
+          <input
+            pInputText
+            type="text"
+            formControlName="Nombre"
+            placeholder="Tu nombre"
+            class="w-full"
+          />
+          @if (nombre?.invalid && nombre?.touched) {
+            @if (nombre?.errors?.['required']) {
+              <small class="error">El nombre es requerido</small>
+            }
+            @if (nombre?.errors?.['minlength']) {
+              <small class="error">Mínimo 2 caracteres</small>
+            }
+          }
+        </div>
+
+        <!-- APELLIDO -->
+        <div class="field">
+          <label>Apellido</label>
+          <input
+            pInputText
+            type="text"
+            formControlName="Apellido"
+            placeholder="Tu apellido"
+            class="w-full"
+          />
+          @if (apellido?.invalid && apellido?.touched) {
+            @if (apellido?.errors?.['required']) {
+              <small class="error">El apellido es requerido</small>
+            }
+            @if (apellido?.errors?.['minlength']) {
+              <small class="error">Mínimo 2 caracteres</small>
+            }
+          }
+        </div>
+
+        <!-- NOMBRE DE USUARIO -->
+        <div class="field">
+          <label>Nombre de usuario</label>
+          <input
+            pInputText
+            type="text"
+            formControlName="NombreUsuario"
+            placeholder="Tu nombre de usuario"
+            class="w-full"
+          />
+          @if (nombreUsuario?.invalid && nombreUsuario?.touched) {
+            @if (nombreUsuario?.errors?.['required']) {
+              <small class="error">El nombre de usuario es requerido</small>
+            }
+            @if (nombreUsuario?.errors?.['minlength']) {
+              <small class="error">Mínimo 3 caracteres</small>
+            }
+          }
+        </div>
+
+        <!-- EMAIL -->
+        <div class="field">
+          <label>Email</label>
+          <input
+            pInputText
+            type="email"
+            formControlName="Email"
+            placeholder="tucorreo@email.com"
+            class="w-full"
+          />
+          @if (email?.invalid && email?.touched) {
+            @if (email?.errors?.['required']) {
+              <small class="error">El email es requerido</small>
+            }
+            @if (email?.errors?.['email']) {
+              <small class="error">El formato del email no es válido</small>
+            }
+          }
+        </div>
+
+        <!-- PASSWORD -->
+        <div class="field">
+          <label>Contraseña</label>
+          <p-password
+            formControlName="Pwd"
+            placeholder="Mínimo 8 caracteres"
+            [feedback]="false"
+            [toggleMask]="true"
+            styleClass="w-full"
+          />
+          @if (pwd?.invalid && pwd?.touched) {
+            @if (pwd?.errors?.['required']) {
+              <small class="error">La contraseña es requerida</small>
+            }
+            @if (pwd?.errors?.['minlength']) {
+              <small class="error">Mínimo 8 caracteres</small>
+            }
+          }
+        </div>
+
+        <!-- ERROR DEL BACKEND -->
+        @if (errorMessage()) {
+          <p-message severity="error" [text]="errorMessage()!" />
+        }
+
+        <!-- BOTONES -->
+        <div class="actions">
+          <p-button
+            type="submit"
+            label="Registrarse"
+            [loading]="loading()"
+            [disabled]="registerForm.invalid"
+          />
+          <p-button
+            type="button"
+            label="Ya tengo cuenta"
+            severity="secondary"
+            (onClick)="goToLogin()"
+          />
+        </div>
+
+      </form>
+    </ng-template>
+
+  </p-card>
+</div>

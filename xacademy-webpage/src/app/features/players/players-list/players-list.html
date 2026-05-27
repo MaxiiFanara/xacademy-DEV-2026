@@ -1,0 +1,39 @@
+<div class="page-wrapper">
+
+  <app-navbar />
+
+  <main class="main-content">
+    <div class="container">
+
+      <h1 class="page-title">Listado de jugadores</h1>
+
+      <!-- FILTROS -->
+      <app-player-filters (filterChange)="onFilterChange($event)" />
+
+      <!-- TABLA -->
+      @defer (on idle) {
+        <app-player-table
+          [players]="players()"
+          [loading]="loading()"
+          (viewDetail)="onViewDetail($event)"
+          (edit)="onEdit($event)"
+        />
+      } @placeholder {
+        <app-loading-spinner />
+      }
+
+      <!-- BOTON CREAR -->
+      <div class="create-action">
+        <p-button
+          label="Crear jugador"
+          icon="pi pi-plus"
+          (onClick)="openCreateModal()"
+        />
+      </div>
+
+    </div>
+  </main>
+
+  <app-footer />
+
+</div>

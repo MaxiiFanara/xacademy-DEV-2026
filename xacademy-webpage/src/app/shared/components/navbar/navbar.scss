@@ -1,0 +1,16 @@
+.navbar-brand {
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: var(--p-primary-color);
+}
+
+.navbar-user {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.username {
+  font-weight: 600;
+  font-size: 0.95rem;
+}
