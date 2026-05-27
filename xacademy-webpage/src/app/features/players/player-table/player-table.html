@@ -1,1 +1,76 @@
-<p>player-table works!</p>
+<p-table
+  [value]="players()"
+  [loading]="loading()"
+  [paginator]="true"
+  [rows]="10"
+  [rowsPerPageOptions]="[10, 25, 50]"
+  styleClass="p-datatable-striped"
+>
+  <ng-template #header>
+    <tr>
+      <th>Foto</th>
+      <th>Nombre</th>
+      <th>Apellido</th>
+      <th>Género</th>
+      <th>Nacionalidad</th>
+      <th>Club</th>
+      <th>Posición</th>
+      <th>Calificación</th>
+      <th>Versión</th>
+      <th>Acciones</th>
+    </tr>
+  </ng-template>
+
+  <ng-template #body let-player>
+    <tr>
+      <td>
+        <img
+          [src]="player.Foto"
+          [alt]="player.Nombre"
+          class="player-img"
+        />
+      </td>
+      <td>{{ player.Nombre }}</td>
+      <td>{{ player.Apellido }}</td>
+      <td>
+        <p-tag
+          [value]="player.EsHombre ? 'Masculino' : 'Femenino'"
+          [severity]="player.EsHombre ? 'info' : 'warn'"
+        />
+      </td>
+      <td>{{ player.Nacionalidad }}</td>
+      <td>{{ player.Club }}</td>
+      <td>{{ player.PosicionPrincipal }}</td>
+      <td>
+        <p-tag [value]="player.Calificacion.toString()" severity="success" />
+      </td>
+      <td>{{ player.Juego }}</td>
+      <td>
+        <div class="actions">
+          <p-button
+            icon="pi pi-eye"
+            severity="info"
+            size="small"
+            (onClick)="onViewDetail(player.IdVersionJugador)"
+            pTooltip="Ver detalle"
+          />
+          <p-button
+            icon="pi pi-pencil"
+            severity="warn"
+            size="small"
+            (onClick)="onEdit(player.IdVersionJugador)"
+            pTooltip="Editar"
+          />
+        </div>
+      </td>
+    </tr>
+  </ng-template>
+
+  <ng-template #empty>
+    <tr>
+      <td colspan="10" class="empty-message">
+        No se encontraron jugadores
+      </td>
+    </tr>
+  </ng-template>
+</p-table>

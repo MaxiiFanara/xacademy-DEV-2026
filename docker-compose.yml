@@ -67,6 +67,22 @@ services:
       - fifa-network
 
   # ==========================================
+  # FRONTEND ANGULAR
+  # ==========================================
+  frontend:
+    build:
+      context: ./xacademy-webpage
+      dockerfile: Dockerfile
+    container_name: fifa-frontend
+    restart: always
+    ports:
+      - "${FRONTEND_PORT}:80"
+    depends_on:
+      - api
+    networks:
+      - fifa-network
+
+  # ==========================================
   # REDES
   # ==========================================
 networks:

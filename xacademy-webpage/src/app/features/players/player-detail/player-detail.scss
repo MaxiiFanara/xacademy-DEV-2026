@@ -1,0 +1,47 @@
+.page-wrapper {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.main-content {
+  flex: 1;
+  padding: 2rem;
+}
+
+.container {
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.back-btn {
+  margin-bottom: 1.5rem;
+  display: block;
+}
+
+.chart-section {
+  background: var(--p-surface-800);
+  border-radius: 12px;
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.section-title {
+  font-size: 1.2rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+  text-align: center;
+}
+
+.timeline-action {
+  display: flex;
+  justify-content: center;
+  margin: 1.5rem 0;
+}
+
+.not-found {
+  text-align: center;
+  color: var(--p-text-muted-color);
+  padding: 3rem;
+  font-size: 1.2rem;
+}

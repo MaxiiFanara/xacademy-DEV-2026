@@ -8,10 +8,13 @@ import { Navbar } from '../../../shared/components/navbar/navbar';
 import { Footer } from '../../../shared/components/footer/footer';
 import { PlayerTable } from '../player-table/player-table';
 import { PlayerFilters as PlayerFiltersComponent } from '../player-filters/player-filters';
+import { LoadingSpinner } from '../../../shared/components/loading-spinner/loading-spinner';
+import { PlayerForm } from '../player-form/player-form';
 
 // PrimeNG
 import { ButtonModule } from 'primeng/button';
 import { ToastModule } from 'primeng/toast';
+import { DialogModule } from 'primeng/dialog';
 import { MessageService } from 'primeng/api';
 
 @Component({
@@ -21,8 +24,11 @@ import { MessageService } from 'primeng/api';
     Footer,
     PlayerTable,
     PlayerFiltersComponent,
+    LoadingSpinner,
+    PlayerForm,
     ButtonModule,
-    ToastModule
+    ToastModule,
+    DialogModule
   ],
   providers: [MessageService],
   templateUrl: './players-list.html',
@@ -36,7 +42,7 @@ export class PlayersList implements OnInit {
 
   players = signal<Player[]>([]);
   loading = signal(false);
-  currentFilters = signal<PlayerFilters>({});
+  showCreateDialog = signal(false);
 
   ngOnInit() {
     this.loadPlayers();
@@ -61,7 +67,6 @@ export class PlayersList implements OnInit {
   }
 
   onFilterChange(filters: PlayerFilters) {
-    this.currentFilters.set(filters);
     this.loadPlayers(filters);
   }
 
@@ -73,7 +78,12 @@ export class PlayersList implements OnInit {
     this.router.navigate(['/players', id, 'edit']);
   }
 
-  openCreateModal() {
-    // lo implementamos cuando hagamos el player-form
+  openCreateDialog() {
+    this.showCreateDialog.set(true);
+  }
+
+  closeCreateDialog() {
+    this.showCreateDialog.set(false);
+    this.loadPlayers();
   }
 }

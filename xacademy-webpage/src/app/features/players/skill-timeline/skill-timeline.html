@@ -1,1 +1,34 @@
-<p>skill-timeline works!</p>
+<div class="timeline-wrapper">
+  <h3 class="timeline-title">Evolución de habilidad a lo largo del tiempo</h3>
+
+  <div class="skill-selector">
+    <p-select
+      [options]="skills()"
+      optionLabel="nombre"
+      placeholder="Seleccioná una habilidad"
+      (onChange)="onSkillChange($event.value)"
+    />
+  </div>
+
+  @if (loading()) {
+    <app-loading-spinner />
+  }
+
+  @if (!loading() && evolution().length > 0) {
+    <p-timeline [value]="evolution()" layout="horizontal" align="bottom">
+      <ng-template #content let-item>
+        <div class="timeline-item">
+          <span class="timeline-version">{{ item.version }}</span>
+          <span class="timeline-value">{{ item.valor }}</span>
+        </div>
+      </ng-template>
+      <ng-template #opposite let-item>
+        <span class="timeline-year">{{ item.anio }}</span>
+      </ng-template>
+    </p-timeline>
+  }
+
+  @if (!loading() && selectedSkill() && evolution().length === 0) {
+    <p class="no-data">No hay datos de evolución para esta habilidad</p>
+  }
+</div>

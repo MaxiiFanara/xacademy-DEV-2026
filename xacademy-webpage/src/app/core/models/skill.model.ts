@@ -10,6 +10,6 @@ export interface PlayerSkill {
 
 export interface SkillEvolution {
   version: string;
-  año: number;
+  anio: number;
   valor: number;
 }

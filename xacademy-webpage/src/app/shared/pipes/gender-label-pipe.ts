@@ -1,12 +1,11 @@
 import { Pipe, PipeTransform } from '@angular/core';
 
 @Pipe({
-  name: 'genderLabel'
+  name: 'genderLabel',
+  standalone: true
 })
 export class GenderLabelPipe implements PipeTransform {
-
-  transform(value: unknown, ...args: unknown[]): unknown {
-    return null;
+  transform(esHombre: boolean): string {
+    return esHombre ? 'Masculino' : 'Femenino';
   }
-
 }

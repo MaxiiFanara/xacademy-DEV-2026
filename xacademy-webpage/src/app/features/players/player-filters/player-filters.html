@@ -1,1 +1,25 @@
-<p>player-filters works!</p>
+<div class="filters">
+  <p-button
+    label="Todos"
+    [outlined]="activeFilter() !== 'todos'"
+    (onClick)="showAll()"
+  />
+  <p-button
+    label="Masculino"
+    [outlined]="activeFilter() !== 'masculino'"
+    severity="info"
+    (onClick)="showMale()"
+  />
+  <p-button
+    label="Femenino"
+    [outlined]="activeFilter() !== 'femenino'"
+    severity="warn"
+    (onClick)="showFemale()"
+  />
+  <p-button
+    label="Mis jugadores"
+    [outlined]="activeFilter() !== 'míos'"
+    severity="success"
+    (onClick)="showMyPlayers()"
+  />
+</div>

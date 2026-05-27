@@ -1,0 +1,45 @@
+.timeline-wrapper {
+  padding: 1.5rem;
+  background: var(--p-surface-800);
+  border-radius: 12px;
+  margin-top: 2rem;
+}
+
+.timeline-title {
+  font-size: 1.2rem;
+  font-weight: 600;
+  margin-bottom: 1.5rem;
+}
+
+.skill-selector {
+  margin-bottom: 2rem;
+}
+
+.timeline-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.timeline-version {
+  font-size: 0.8rem;
+  color: var(--p-text-muted-color);
+}
+
+.timeline-value {
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: var(--p-primary-color);
+}
+
+.timeline-year {
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.no-data {
+  text-align: center;
+  color: var(--p-text-muted-color);
+  padding: 2rem;
+}

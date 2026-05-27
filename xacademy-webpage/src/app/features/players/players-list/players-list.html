@@ -27,9 +27,21 @@
         <p-button
           label="Crear jugador"
           icon="pi pi-plus"
-          (onClick)="openCreateModal()"
+          (onClick)="openCreateDialog()"
         />
       </div>
+
+      <!-- DIALOG CREAR JUGADOR -->
+      <p-dialog
+        header="Crear jugador"
+        [visible]="showCreateDialog()"
+        (visibleChange)="showCreateDialog.set($event)"
+        [modal]="true"
+        [style]="{ width: '80vw', maxWidth: '900px' }"
+        [draggable]="false"
+      >
+        <app-player-form [standalone]="true" />
+      </p-dialog>
 
     </div>
   </main>

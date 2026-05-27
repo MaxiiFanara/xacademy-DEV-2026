@@ -1,1 +1,165 @@
-<p>player-form works!</p>
+<div class="page-wrapper">
+
+
+  @if (!standalone()) {
+  <app-navbar />
+}
+
+  <main class="main-content">
+    <div class="container">
+
+      <p-button
+        label="Volver"
+        icon="pi pi-arrow-left"
+        severity="secondary"
+        (onClick)="goBack()"
+        class="back-btn"
+      />
+
+      <p-card>
+        <ng-template #title>
+          <h2>{{ isCreate ? 'Crear jugador' : 'Editar jugador' }}</h2>
+        </ng-template>
+
+        <ng-template #content>
+          @if (loading()) {
+            <app-loading-spinner />
+          }
+
+          @if (!loading()) {
+            <form [formGroup]="playerForm" (ngSubmit)="onSubmit()">
+
+              <!-- CAMPOS COMUNES -->
+              <div class="form-grid">
+
+                <div class="field">
+                  <label>Nombre</label>
+                  <input pInputText formControlName="nombre" class="w-full" />
+                  @if (playerForm.get('nombre')?.invalid && playerForm.get('nombre')?.touched) {
+                    <small class="error">Nombre requerido, mínimo 2 caracteres</small>
+                  }
+                </div>
+
+                <div class="field">
+                  <label>Apellido</label>
+                  <input pInputText formControlName="apellido" class="w-full" />
+                  @if (playerForm.get('apellido')?.invalid && playerForm.get('apellido')?.touched) {
+                    <small class="error">Apellido requerido, mínimo 2 caracteres</small>
+                  }
+                </div>
+
+                <div class="field">
+                  <label>ID Nacionalidad</label>
+                  <p-inputnumber formControlName="idNacionalidad" class="w-full" />
+                </div>
+
+                <div class="field">
+                  <label>ID Club</label>
+                  <p-inputnumber formControlName="idClub" class="w-full" />
+                </div>
+
+                <div class="field full-width">
+                  <label>URL de imagen</label>
+                  <input pInputText formControlName="imagenUrl" class="w-full" />
+                </div>
+
+                <div class="field">
+                  <label>Calificación</label>
+                  <p-inputnumber
+                    formControlName="calificacion"
+                    [min]="1"
+                    [max]="99"
+                    class="w-full"
+                  />
+                </div>
+
+              </div>
+
+              <!-- CAMPOS SOLO EN CREAR -->
+              @if (isCreate) {
+                <div class="form-grid">
+
+                  <div class="field">
+                    <label>Fecha de nacimiento</label>
+                    <p-datepicker
+                      formControlName="fechaNacimiento"
+                      dateFormat="yy-mm-dd"
+                      class="w-full"
+                    />
+                  </div>
+
+                  <div class="field">
+                    <label>Versión FIFA</label>
+                    <p-select
+                      formControlName="idVersion"
+                      [options]="versions()"
+                      optionLabel="Nombre"
+                      optionValue="Id"
+                      placeholder="Seleccioná versión"
+                      class="w-full"
+                    />
+                  </div>
+
+                  <div class="field">
+                    <label>Género</label>
+                    <div class="gender-toggle">
+                      <span>Femenino</span>
+                      <p-toggleswitch formControlName="esHombre" />
+                      <span>Masculino</span>
+                    </div>
+                  </div>
+
+                </div>
+              }
+
+              <!-- SKILLS -->
+              <div class="skills-section">
+                <h3>Habilidades</h3>
+                <div class="skills-grid" formArrayName="skills">
+                  @for (skill of skillsArray.controls; track $index) {
+                    <div class="field" [formGroupName]="$index">
+                      <label>{{ skills()[$index]?.nombre || 'Skill ' + ($index + 1) }}</label>
+                      <p-inputnumber
+                        formControlName="valor"
+                        [min]="1"
+                        [max]="99"
+                        class="w-full"
+                      />
+                    </div>
+                  }
+                </div>
+              </div>
+
+              <!-- ERROR -->
+              @if (errorMessage()) {
+                <p-message severity="error" [text]="errorMessage()!" />
+              }
+
+              <!-- BOTONES -->
+              <div class="actions">
+                <p-button
+                  type="submit"
+                  [label]="isCreate ? 'Crear jugador' : 'Guardar cambios'"
+                  [loading]="loading()"
+                  [disabled]="playerForm.invalid"
+                />
+                <p-button
+                  type="button"
+                  label="Cancelar"
+                  severity="secondary"
+                  (onClick)="goBack()"
+                />
+              </div>
+
+            </form>
+          }
+        </ng-template>
+      </p-card>
+
+    </div>
+  </main>
+
+  @if (!standalone()) {
+  <app-footer />
+}
+</div>

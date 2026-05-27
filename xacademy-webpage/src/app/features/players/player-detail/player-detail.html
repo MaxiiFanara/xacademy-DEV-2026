@@ -1,1 +1,69 @@
-<p>player-detail works!</p>
+<div class="page-wrapper">
+
+  <app-navbar />
+
+  <main class="main-content">
+    <div class="container">
+
+      <!-- BOTON VOLVER -->
+      <p-button
+        label="Volver al listado"
+        icon="pi pi-arrow-left"
+        severity="secondary"
+        (onClick)="goBack()"
+        class="back-btn"
+      />
+
+      @if (loading()) {
+        <app-loading-spinner />
+      }
+
+      @if (!loading() && player()) {
+        @let p = player()!;
+
+        <!-- CARD HEADER -->
+        <app-player-card-header [player]="p" />
+
+        <!-- RADAR CHART -->
+        @defer (on idle) {
+          <div class="chart-section">
+            <h3 class="section-title">Habilidades</h3>
+            <app-radar-chart [skills]="p.skills" />
+          </div>
+        } @placeholder {
+          <app-loading-spinner />
+        }
+
+        <!-- BOTON VER EVOLUCION -->
+        <div class="timeline-action">
+          <p-button
+            [label]="showTimeline() ? 'Ocultar evolución' : 'Ver evolución de habilidades'"
+            icon="pi pi-chart-line"
+            severity="info"
+            (onClick)="toggleTimeline()"
+          />
+        </div>
+
+        <!-- TIMELINE -->
+        @if (showTimeline()) {
+          @defer (on immediate) {
+            <app-skill-timeline
+              [idJugador]="p.idJugador"
+              [skills]="skills()"
+            />
+          } @placeholder {
+            <app-loading-spinner />
+          }
+        }
+      }
+
+      @if (!loading() && !player()) {
+        <p class="not-found">No se encontró el jugador</p>
+      }
+
+    </div>
+  </main>
+
+  <app-footer />
+
+</div>
