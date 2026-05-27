@@ -5,6 +5,11 @@ class SkillRepository extends BaseRepository {
   constructor() {
     super(SkillModel); 
   }
+
+   async findByTipo(esArquero) {
+    const valor = esArquero === 'true' || esArquero === true;
+    return await this.findAllByField('EsArquero', valor);
+  }
 }
 
 export default SkillRepository;

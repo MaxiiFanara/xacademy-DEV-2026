@@ -1,14 +1,28 @@
 import BaseService from '../core/base.service.js';
 
 class JugadorService extends BaseService {
-constructor(jugadorRepository) {
+constructor(jugadorRepository, authRepository) {
     super(jugadorRepository);
+    this.authRepository = authRepository;
   }
 
-  async getAll({ page, limit } = {}) {
-    return await this.repository.findAll({ page, limit });
+async getAll({ page, limit, versionId, esHombre, creadoPorMi, usuarioEmail } = {}) {
+  let idUsuarioCreador;
+
+  if (creadoPorMi === 'true' || creadoPorMi === true) {
+    const usuario = await this.authRepository.findByEmail(usuarioEmail); // ← this
+    if (!usuario) throw new Error('Usuario no encontrado');
+    idUsuarioCreador = usuario.Id;
   }
 
+  return await this.repository.findAll({
+    page,
+    limit,
+    versionId,
+    esHombre,
+    idUsuarioCreador,
+  });
+}
   async getDetailById(id) {
     const rows = await this.repository.findDetailById(id);
 
@@ -54,6 +68,126 @@ constructor(jugadorRepository) {
   }
 
 
+  async crearJugador(body, usuarioActivo) {
+    const {
+      nombre, apellido, fechaNacimiento, esHombre,
+      idNacionalidad,
+      idVersion, idClub, imagenUrl,
+      posiciones, skills, calificacion,
+    } = body;
+
+    // 1. Validar que haya exactamente una posición principal
+    const principales = posiciones.filter(p => p.esPrincipal);
+    if (principales.length !== 1) {
+      throw new Error('Debe haber exactamente una posición principal');
+    }
+
+    // 2. Validar que no haya posiciones repetidas
+    const idsPosicion = posiciones.map(p => p.idPosicion);
+    if (new Set(idsPosicion).size !== idsPosicion.length) {
+      throw new Error('No puede haber posiciones repetidas');
+    }
+
+    // 3. Validar skills entre 0 y 99
+    const skillsInvalidas = skills.filter(s => s.valor < 0 || s.valor > 99);
+    if (skillsInvalidas.length > 0) {
+      throw new Error('Los valores de las skills deben estar entre 0 y 99');
+    }
+
+    // 4. Verificar y revalidar calificación
+    const calificacionCalculada = Math.round(
+      skills.reduce((sum, s) => sum + s.valor, 0) / skills.length
+    );
+    if (calificacionCalculada !== calificacion) {
+      throw new Error('La calificación no coincide con el promedio de las skills');
+    }
+
+    // 5. Verificar duplicado
+    const duplicado = await this.repository.existeDuplicado(nombre, apellido, fechaNacimiento);
+    if (duplicado) {
+      throw new Error('Ya existe un jugador con ese nombre, apellido y fecha de nacimiento');
+    }
+
+    // 6. Ejecutar transacción
+ return await this.repository.crearCompleto({
+    jugador: {
+      Nombre:           nombre,
+      Apellido:         apellido,
+      FechaNacimiento:  fechaNacimiento || null,
+      EsHombre:         esHombre,
+      EsRetirado:       false,
+      AnioRetiro:       null,
+      EsDelJuegoBase:   false,
+      EsActivo:         true,
+      IdNacionalidad:   idNacionalidad,
+      IdUsuarioCreador: usuarioActivo.Id,  // ← viene del JWT, no del body
+    },
+    versionJugador: {
+      IdVersion:    idVersion,
+      IdClub:       idClub,
+      ImagenUrl:    imagenUrl || null,
+      Calificacion: calificacionCalculada,
+    },
+    posiciones,
+    skills,
+  });
+  }
+
+async actualizarJugador(idVersionJugador, body) {
+  const {
+    nombre, apellido, idNacionalidad,
+    idClub, imagenUrl,
+    posiciones, skills, calificacion,
+    idJugador,
+  } = body;
+
+  // 1. Verificar que existe
+const versionExiste = await this.repository.findVersionJugadorById(idVersionJugador);
+  if (!versionExiste) throw new Error('Jugador no encontrado');
+
+  // 2. Validar exactamente una posición principal
+  const principales = posiciones.filter(p => p.esPrincipal);
+  if (principales.length !== 1) {
+    throw new Error('Debe haber exactamente una posición principal');
+  }
+
+  // 3. Validar posiciones sin repetir
+  const idsPosicion = posiciones.map(p => p.idPosicion);
+  if (new Set(idsPosicion).size !== idsPosicion.length) {
+    throw new Error('No puede haber posiciones repetidas');
+  }
+
+  // 4. Validar skills entre 0 y 99
+  const skillsInvalidas = skills.filter(s => s.valor < 0 || s.valor > 99);
+  if (skillsInvalidas.length > 0) {
+    throw new Error('Los valores de las skills deben estar entre 0 y 99');
+  }
+
+  // 5. Revalidar calificación
+  const calificacionCalculada = Math.round(
+    skills.reduce((sum, s) => sum + s.valor, 0) / skills.length
+  );
+  if (calificacionCalculada !== calificacion) {
+    throw new Error('La calificación no coincide con el promedio de las skills');
+  }
+
+  return await this.repository.actualizarCompleto({
+    idVersionJugador,
+    idJugador,
+    jugador: {
+      Nombre:        nombre,
+      Apellido:      apellido,
+      IdNacionalidad: idNacionalidad,
+    },
+    versionJugador: {
+      IdClub:       idClub,
+      ImagenUrl:    imagenUrl || null,
+      Calificacion: calificacionCalculada,
+    },
+    posiciones,
+    skills,
+  });
+}
 }
 
 export default JugadorService;

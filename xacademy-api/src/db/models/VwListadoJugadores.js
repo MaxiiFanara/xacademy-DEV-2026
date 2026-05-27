@@ -1,7 +1,12 @@
-import { sequelize } from '../connection.js';
 import { DataTypes } from 'sequelize';
+import { sequelize } from '../connection.js';
 
 export const VwListadoJugadores = sequelize.define('VwListadoJugadores', {
+  IdVersionJugador:  { type: DataTypes.INTEGER, allowNull: false },
+  IdJugador:         { type: DataTypes.INTEGER, allowNull: false },
+  IdVersion:         { type: DataTypes.INTEGER, allowNull: false },
+  EsHombre:          { type: DataTypes.BOOLEAN, allowNull: false },
+  IdUsuarioCreador:  { type: DataTypes.INTEGER, allowNull: true  },
   Juego:             { type: DataTypes.STRING,  allowNull: false },
   Foto:              { type: DataTypes.STRING,  allowNull: true  },
   Nombre:            { type: DataTypes.STRING,  allowNull: false },
@@ -9,7 +14,7 @@ export const VwListadoJugadores = sequelize.define('VwListadoJugadores', {
   Nacionalidad:      { type: DataTypes.STRING,  allowNull: false },
   Club:              { type: DataTypes.STRING,  allowNull: false },
   PosicionPrincipal: { type: DataTypes.STRING,  allowNull: true  },
-  Calificacion:      { type: DataTypes.INTEGER, allowNull: true,  primaryKey: true }, // ← truco para vistas
+  Calificacion:      { type: DataTypes.INTEGER, allowNull: true, primaryKey: true },
 }, {
   tableName:  'vw_ListadoJugadores',
   timestamps: false,

@@ -22,6 +22,14 @@ class BaseRepository {
     });
   }
 
+
+  async findAllByField(field, value, options = {}) {
+  return await this.model.findAll({
+    where: { [field]: value },
+    ...options,
+  });
+}
+
   async create(data) {
     return await this.model.create(data);
   }

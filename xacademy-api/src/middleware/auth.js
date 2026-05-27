@@ -1,41 +1,36 @@
 import passport    from '../config/passport.js';
 import authService from '../services/auth.service.js';
+import { verifyToken } from '../utils/jwt.js';
+import {setTokenCookies} from '../utils/cookies.js';
 
 const COOKIE_OPTIONS = {
   httpOnly: true,
   sameSite: 'strict',
-  signed:   true,                                          // ← firmadas
+  signed:   process.env.NODE_ENV === 'production',
   secure:   process.env.NODE_ENV === 'production',
 };
-
-const setTokenCookies = (res, accessToken, refreshToken) => {
-  res.cookie('access_token',  accessToken,  { ...COOKIE_OPTIONS, maxAge: 24 * 60 * 60 * 1000 });
-  res.cookie('refresh_token', refreshToken, { ...COOKIE_OPTIONS, maxAge: 7 * 24 * 60 * 60 * 1000 });
-};
-
-// Renueva silenciosamente si el access expiró pero el refresh es válido
 export const silentRefresh = async (req, res, next) => {
-  const accessToken  = req.signedCookies.access_token;
-  const refreshToken = req.signedCookies.refresh_token;
-
-  if (accessToken) return next(); // access válido, no hace nada
-
-  if (!refreshToken) return next(); // no hay sesión activa
-
   try {
+    const accessToken  = req.signedCookies?.access_token || req.cookies?.access_token;
+    const refreshToken = req.signedCookies?.refresh_token || req.cookies?.refresh_token;
+
+    if (!refreshToken) return next();
+
+    if (accessToken) {
+      const payload = verifyToken(accessToken);
+      if (payload) return next();
+    }
+
     const { accessToken: newAccess, refreshToken: newRefresh } = await authService.refreshFromToken(refreshToken);
     setTokenCookies(res, newAccess, newRefresh);
-    req.cookies.access_token = newAccess; // lo inyectamos para que passport lo lea en este mismo request
+    req.signedCookies.access_token = newAccess;
   } catch {
-    // refresh expirado o inválido, limpiamos y dejamos pasar (requireAuth lo bloqueará si la ruta lo exige)
     res.clearCookie('access_token');
     res.clearCookie('refresh_token');
   }
-
   next();
 };
 
-// Rutas que requieren sesión activa
 export const requireAuth = (req, res, next) => {
   passport.authenticate('jwt', { session: false }, (err, user) => {
     if (err)   return next(err);
@@ -45,10 +40,8 @@ export const requireAuth = (req, res, next) => {
   })(req, res, next);
 };
 
-// Bloquea si ya está logueado (para login/register)
 export const alreadyAuth = (req, res, next) => {
-  if (!req.signedCookies?.access_token) return next();
+  const token = req.signedCookies?.access_token || req.cookies?.access_token;
+  if (!token) return next();
   res.status(400).json({ error: 'Ya tenés una sesión activa' });
 };
-
-export { setTokenCookies };

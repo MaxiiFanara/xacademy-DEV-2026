@@ -1,4 +1,4 @@
-import { setTokenCookies }   from '../middleware/auth.js';
+import {setTokenCookies} from '../utils/cookies.js';
 
 class AuthController {
   constructor(authService) {
@@ -17,8 +17,7 @@ class AuthController {
 
   login = async (req, res) => {
     try {
-      const { Email, Pwd } = req.body;
-      const { accessToken, refreshToken, user } = await this.authService.login(Email, Pwd);
+      const { accessToken, refreshToken, user } = await this.authService.login(req.body); // ← pasa todo el body
       setTokenCookies(res, accessToken, refreshToken);
       res.status(200).json({ user });
     } catch (error) {

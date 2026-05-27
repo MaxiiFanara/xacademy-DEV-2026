@@ -1,6 +1,6 @@
-// src/models/JugadorModel.js
+// src/db/models/Jugador.js
 import { DataTypes } from 'sequelize';
-import {sequelize} from '../connection.js';
+import { sequelize } from '../connection.js';
 
 const JugadorModel = sequelize.define('Jugador', {
   Id: {
@@ -18,7 +18,7 @@ const JugadorModel = sequelize.define('Jugador', {
     allowNull: false
   },
   FechaNacimiento: {
-    type: DataTypes.DATEONLY, // DATEONLY mapea exactamente el tipo DATE de SQL sin la hora
+    type: DataTypes.DATEONLY,
     allowNull: true
   },
   EsHombre: {
@@ -28,7 +28,7 @@ const JugadorModel = sequelize.define('Jugador', {
   EsRetirado: {
     type: DataTypes.BOOLEAN,
     allowNull: false,
-    defaultValue: false // Mapea el DEFAULT FALSE
+    defaultValue: false
   },
   AnioRetiro: {
     type: DataTypes.INTEGER,
@@ -37,50 +37,27 @@ const JugadorModel = sequelize.define('Jugador', {
   EsDelJuegoBase: {
     type: DataTypes.BOOLEAN,
     allowNull: false,
-    defaultValue: false // Mapea el DEFAULT FALSE
+    defaultValue: false
   },
   EsActivo: {
     type: DataTypes.BOOLEAN,
     allowNull: false,
-    defaultValue: true // Mapea el DEFAULT TRUE
+    defaultValue: true
   },
   IdNacionalidad: {
     type: DataTypes.INTEGER,
     allowNull: false,
-    references: {
-      model: 'Nacionalidad', // Vincula con la tabla destino
-      key: 'Id'
-    }
+    references: { model: 'Nacionalidad', key: 'Id' }
   },
   IdUsuarioCreador: {
     type: DataTypes.INTEGER,
-    allowNull: true, // Permite NULL para jugadores del sistema (CSV)
-    references: {
-      model: 'Usuario', // Vincula con la tabla destino
-      key: 'Id'
-    }
+    allowNull: true,
+    references: { model: 'Usuario', key: 'Id' }
   }
 }, {
-  // Configuración para que coincida exactamente con la base de datos
-  tableName: 'Jugador', 
+  tableName:  'Jugador',
   timestamps: false,
-
-  // Validaciones a nivel de modelo para asegurar la consistencia antes de impactar la DB
-  validate: {
-    checkRetiroConsistency() {
-      if (this.EsRetirado && this.AnioRetiro === null) {
-        throw new Error("Consistencia de retiro: Si EsRetirado es TRUE, AnioRetiro no puede ser nulo.");
-      }
-      if (!this.EsRetirado && this.AnioRetiro !== null) {
-        throw new Error("Consistencia de retiro: Si EsRetirado es FALSE, AnioRetiro debe ser nulo.");
-      }
-    },
-    checkEstadoConsistency() {
-      if (this.EsDelJuegoBase && !this.EsActivo) {
-        throw new Error("Consistencia de estado: Un jugador del juego base no puede pasar a estar inactivo.");
-      }
-    }
-  }
+  // validate eliminado — la DB maneja los constraints
 });
 
 export default JugadorModel;
