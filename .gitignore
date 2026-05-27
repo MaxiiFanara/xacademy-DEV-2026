@@ -4,12 +4,12 @@
 
 # ── Dependencias ─────────────────────────────────────────────
 xacademy-api/node_modules/
-xacademy-web-page/node_modules/
+xacademy-webpage/node_modules/
 
 # ── Variables de entorno (NUNCA subir al repo) ───────────────
 .env
 xacademy-api/.env
-xacademy-web-page/.env
+xacademy-webpage/.env
 
 # ── Logs generados en runtime ────────────────────────────────
 xacademy-api/logs/*.log
