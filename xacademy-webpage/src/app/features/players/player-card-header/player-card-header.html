@@ -1,0 +1,13 @@
+<div class="card-header">
+  <div class="player-info">
+    <h2 class="player-name">{{ player().nombre }} {{ player().apellido }}</h2>
+    <div class="player-meta">
+      <p-tag value="Versión: {{ player().juego }}" severity="secondary" />
+      <p-tag value="Calificación: {{ player().calificacion }}" severity="success" />
+    </div>
+    <div class="player-details">
+      <span><strong>Nacionalidad:</strong> {{ player().nacionalidad }}</span>
+      <span><strong>Club:</strong> {{ player().club }}</span>
+    </div>
+  </div>
+</div>

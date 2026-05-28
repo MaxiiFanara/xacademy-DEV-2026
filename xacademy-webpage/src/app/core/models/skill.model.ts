@@ -1,6 +1,7 @@
 export interface Skill {
-  idSkill: number;
-  nombre?: string;
+  Id: number;
+  Nombre: string;
+  EsArquero: boolean;
 }
 
 export interface PlayerSkill {

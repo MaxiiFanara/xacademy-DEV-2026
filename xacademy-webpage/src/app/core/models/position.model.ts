@@ -1,6 +1,6 @@
 export interface Position {
-  idPosicion: number;
-  nombre?: string;
+  Id: number;
+  Nombre: string;
 }
 
 export interface PlayerPosition {

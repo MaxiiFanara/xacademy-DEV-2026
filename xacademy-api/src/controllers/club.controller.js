@@ -14,6 +14,15 @@ class ClubController extends BaseController {
       res.status(500).json({ error: error.message });
     }
   };
-}
 
+  getByLiga = async (req, res) => {
+    try {
+      const { ligaId } = req.params;
+      const result = await this.service.getByLiga(ligaId);
+      res.status(200).json(result);
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
+}
+}
 export default ClubController;

@@ -1,6 +1,6 @@
 import { Injectable, signal } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { Player, PlayerDetail, PlayerCreateDto, PlayerUpdateDto } from '../models/player.model';
+import { Player, PlayerDetailData, PlayerCreateDto, PlayerUpdateDto, PaginatedPlayers } from '../models/player.model';
 import { Version } from '../models/version.model';
 
 export interface PlayerFilters {
@@ -10,11 +10,6 @@ export interface PlayerFilters {
   page?: number;
 }
 
-export interface PaginatedPlayers {
-  data: Player[];
-  total: number;
-  page: number;
-}
 
 @Injectable({
   providedIn: 'root'
@@ -28,7 +23,7 @@ export class PlayerService {
   players = signal<Player[]>([]);
 
   // Signal con el jugador en detalle
-  selectedPlayer = signal<PlayerDetail | null>(null);
+  selectedPlayer = signal<PlayerDetailData | null>(null);
 
   constructor(private http: HttpClient) {}
 
@@ -56,22 +51,22 @@ export class PlayerService {
   }
 
   // Obtener detalle de un jugador por ID de VersionJugador
-  getPlayerById(id: number) {
-    return this.http.get<PlayerDetail>(`${this.API}/${id}`, {
-      withCredentials: true
-    });
-  }
+ getPlayerById(id: number) {
+  return this.http.get<PlayerDetailData>(`${this.API}/${id}`, {
+    withCredentials: true
+  });
+}
 
   // Crear jugador
   createPlayer(dto: PlayerCreateDto) {
-    return this.http.post<PlayerDetail>(this.API, dto, {
+    return this.http.post<PlayerDetailData>(this.API, dto, {
       withCredentials: true
     });
   }
 
   // Editar jugador — id es el ID de VersionJugador
   updatePlayer(id: number, dto: PlayerUpdateDto) {
-    return this.http.put<PlayerDetail>(`${this.API}/${id}`, dto, {
+    return this.http.put<PlayerDetailData>(`${this.API}/${id}`, dto, {
       withCredentials: true
     });
   }

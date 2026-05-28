@@ -2,8 +2,7 @@ import { Component, inject, signal, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { PlayerService } from '../../../core/services/player';
 import { SkillService } from '../../../core/services/skill';
-import { PlayerDetail as PlayerDetailModel } from '../../../core/models/player.model';
-import { Skill } from '../../../core/models/skill.model';
+import { PlayerDetailData } from '../../../core/models/player.model';import { Skill } from '../../../core/models/skill.model';
 
 // Componentes propios
 import { Navbar } from '../../../shared/components/navbar/navbar';
@@ -39,17 +38,18 @@ export class PlayerDetail implements OnInit {
   private playerService = inject(PlayerService);
   private skillService = inject(SkillService);
 
-  player = signal<PlayerDetailModel | null>(null);
-  skills = signal<Skill[]>([]);
-  selectedSkill = signal<Skill | null>(null);
+player = signal<PlayerDetailData | null>(null);  selectedSkill = signal<Skill | null>(null);
   showTimeline = signal(false);
   loading = signal(true);
+  playerId = signal<number>(0);
+  availableSkills = signal<Skill[]>([]);
 
   ngOnInit() {
-    const id = Number(this.route.snapshot.paramMap.get('id'));
-    this.loadPlayer(id);
-    this.loadSkills();
-  }
+  const id = Number(this.route.snapshot.paramMap.get('id'));
+  this.playerId.set(id);
+  this.loadPlayer(id);
+  this.loadSkills();
+}
 
   loadPlayer(id: number) {
     this.playerService.getPlayerById(id).subscribe({
@@ -63,7 +63,7 @@ export class PlayerDetail implements OnInit {
 
   loadSkills() {
     this.skillService.getSkills().subscribe({
-      next: (skills) => this.skills.set(skills)
+     next: (skills) => this.availableSkills.set(skills)
     });
   }
 

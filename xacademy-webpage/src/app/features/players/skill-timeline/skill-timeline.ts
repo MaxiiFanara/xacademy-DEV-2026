@@ -32,7 +32,7 @@ export class SkillTimeline {
     this.selectedSkill.set(skill);
     this.loading.set(true);
 
-    this.skillService.getSkillEvolution(this.idJugador(), skill.idSkill).subscribe({
+    this.skillService.getSkillEvolution(this.idJugador(), skill.Id).subscribe({
       next: (data) => {
         this.evolution.set(data);
         this.loading.set(false);

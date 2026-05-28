@@ -13,20 +13,25 @@ import { TagModule } from 'primeng/tag';
   styleUrl: './player-table.scss'
 })
 export class PlayerTable {
-
-  // input() es la forma moderna de Angular 20 en vez de @Input()
   players = input<Player[]>([]);
   loading = input<boolean>(false);
+  totalRecords = input<number>(0);
+  currentPage = input<number>(1);
+  totalPages = input<number>(1);
 
-  // output() en vez de @Output() EventEmitter
   viewDetail = output<number>();
   edit = output<number>();
+  pageChange = output<number>();
 
-  onViewDetail(id: number) {
-    this.viewDetail.emit(id);
+  onViewDetail(id: number) { this.viewDetail.emit(id); }
+  onEdit(id: number) { this.edit.emit(id); }
+
+  goToPage(page: number) {
+    if (page < 1 || page > this.totalPages()) return;
+    this.pageChange.emit(page);
   }
 
-  onEdit(id: number) {
-    this.edit.emit(id);
+  getPages(): number[] {
+    return Array.from({ length: this.totalPages() }, (_, i) => i + 1);
   }
 }

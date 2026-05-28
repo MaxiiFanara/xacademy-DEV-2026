@@ -24,11 +24,15 @@ export interface PaginatedPlayers {
   perPage: number;
   data: Player[];
 }
-
-export interface PlayerDetail extends Player {
-  fechaNacimiento: string;
-  posiciones: PlayerPosition[];
-  skills: PlayerSkill[];
+export interface PlayerDetailData {
+  juego: string;
+  nombre: string;
+  apellido: string;
+  nacionalidad: string;
+  club: string;
+  calificacion: number;
+  labels: string[];
+  skillsData: number[];
 }
 
 export interface PlayerCreateDto {

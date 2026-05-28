@@ -1,9 +1,6 @@
 <p-table
   [value]="players()"
   [loading]="loading()"
-  [paginator]="true"
-  [rows]="10"
-  [rowsPerPageOptions]="[10, 25, 50]"
   styleClass="p-datatable-striped"
 >
   <ng-template #header>
@@ -24,11 +21,7 @@
   <ng-template #body let-player>
     <tr>
       <td>
-        <img
-          [src]="player.Foto"
-          [alt]="player.Nombre"
-          class="player-img"
-        />
+        <img [src]="player.Foto" [alt]="player.Nombre" class="player-img" />
       </td>
       <td>{{ player.Nombre }}</td>
       <td>{{ player.Apellido }}</td>
@@ -68,9 +61,36 @@
 
   <ng-template #empty>
     <tr>
-      <td colspan="10" class="empty-message">
-        No se encontraron jugadores
-      </td>
+      <td colspan="10" class="empty-message">No se encontraron jugadores</td>
     </tr>
   </ng-template>
 </p-table>
+
+<!-- PAGINADOR MANUAL -->
+<div class="paginator">
+  <p-button
+    icon="pi pi-angle-left"
+    severity="secondary"
+    [disabled]="currentPage() === 1"
+    (onClick)="goToPage(currentPage() - 1)"
+  />
+
+  @for (page of getPages(); track page) {
+    <p-button
+      [label]="page.toString()"
+      [severity]="page === currentPage() ? 'primary' : 'secondary'"
+      (onClick)="goToPage(page)"
+    />
+  }
+
+  <p-button
+    icon="pi pi-angle-right"
+    severity="secondary"
+    [disabled]="currentPage() === totalPages()"
+    (onClick)="goToPage(currentPage() + 1)"
+  />
+
+  <span class="page-info">
+    Página {{ currentPage() }} de {{ totalPages() }} — {{ totalRecords() }} jugadores
+  </span>
+</div>

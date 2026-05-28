@@ -9,8 +9,7 @@ import { User, LoginDto, RegisterDto } from '../models/user.model';
 })
 export class AuthService {
 
-  private readonly API = 'http://localhost:8080/api/auth';
-
+private readonly API = '/api/auth';
   private currentUser = signal<User | null>(null);
 
   constructor(private http: HttpClient, private router: Router) {}

@@ -1,5 +1,6 @@
 import { Component, input } from '@angular/core';
-import { PlayerDetail } from '../../../core/models/player.model';
+import { PlayerDetailData } from '../../../core/models/player.model';
+
 
 // PrimeNG
 import { CardModule } from 'primeng/card';
@@ -12,5 +13,4 @@ import { TagModule } from 'primeng/tag';
   styleUrl: './player-card-header.scss'
 })
 export class PlayerCardHeader {
-  player = input.required<PlayerDetail>();
-}
+player = input.required<PlayerDetailData>();}

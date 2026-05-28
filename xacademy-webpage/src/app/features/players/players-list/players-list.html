@@ -13,11 +13,15 @@
       <!-- TABLA -->
       @defer (on idle) {
         <app-player-table
-          [players]="players()"
-          [loading]="loading()"
-          (viewDetail)="onViewDetail($event)"
-          (edit)="onEdit($event)"
-        />
+  [players]="players()"
+  [loading]="loading()"
+  [totalRecords]="totalRecords()"
+  [totalPages]="totalPages()"
+  [currentPage]="currentPage()"
+  (viewDetail)="onViewDetail($event)"
+  (edit)="onEdit($event)"
+  (pageChange)="onPageChange($event)"
+/>
       } @placeholder {
         <app-loading-spinner />
       }
@@ -33,7 +37,6 @@
 
       <!-- DIALOG CREAR JUGADOR -->
       <p-dialog
-        header="Crear jugador"
         [visible]="showCreateDialog()"
         (visibleChange)="showCreateDialog.set($event)"
         [modal]="true"

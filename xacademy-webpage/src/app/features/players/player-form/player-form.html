@@ -1,20 +1,12 @@
 <div class="page-wrapper">
-
-
-  @if (!standalone()) {
-  <app-navbar />
-}
+  @if (!standalone()) { <app-navbar /> }
 
   <main class="main-content">
     <div class="container">
 
-      <p-button
-        label="Volver"
-        icon="pi pi-arrow-left"
-        severity="secondary"
-        (onClick)="goBack()"
-        class="back-btn"
-      />
+      @if (!standalone()) {
+        <p-button label="Volver" icon="pi pi-arrow-left" severity="secondary" (onClick)="goBack()" class="back-btn" />
+      }
 
       <p-card>
         <ng-template #title>
@@ -22,21 +14,20 @@
         </ng-template>
 
         <ng-template #content>
-          @if (loading()) {
-            <app-loading-spinner />
-          }
+          @if (loading()) { <app-loading-spinner /> }
 
           @if (!loading()) {
             <form [formGroup]="playerForm" (ngSubmit)="onSubmit()">
 
-              <!-- CAMPOS COMUNES -->
+              <!-- DATOS BASICOS -->
+              <h3 class="section-title">Datos básicos</h3>
               <div class="form-grid">
 
                 <div class="field">
                   <label>Nombre</label>
                   <input pInputText formControlName="nombre" class="w-full" />
                   @if (playerForm.get('nombre')?.invalid && playerForm.get('nombre')?.touched) {
-                    <small class="error">Nombre requerido, mínimo 2 caracteres</small>
+                    <small class="error">Mínimo 2 caracteres</small>
                   }
                 </div>
 
@@ -44,48 +35,40 @@
                   <label>Apellido</label>
                   <input pInputText formControlName="apellido" class="w-full" />
                   @if (playerForm.get('apellido')?.invalid && playerForm.get('apellido')?.touched) {
-                    <small class="error">Apellido requerido, mínimo 2 caracteres</small>
+                    <small class="error">Mínimo 2 caracteres</small>
                   }
-                </div>
-
-                <div class="field">
-                  <label>ID Nacionalidad</label>
-                  <p-inputnumber formControlName="idNacionalidad" class="w-full" />
-                </div>
-
-                <div class="field">
-                  <label>ID Club</label>
-                  <p-inputnumber formControlName="idClub" class="w-full" />
                 </div>
 
                 <div class="field full-width">
                   <label>URL de imagen</label>
-                  <input pInputText formControlName="imagenUrl" class="w-full" />
+                  <input pInputText formControlName="imagenUrl" placeholder="https://..." class="w-full" />
                 </div>
 
                 <div class="field">
-                  <label>Calificación</label>
-                  <p-inputnumber
-                    formControlName="calificacion"
-                    [min]="1"
-                    [max]="99"
+                  <label>Nacionalidad</label>
+                  <p-select
+                    formControlName="idNacionalidad"
+                    [options]="nacionalidades()"
+                    optionLabel="Nombre"
+                    optionValue="Id"
+                    placeholder="Seleccioná nacionalidad"
                     class="w-full"
                   />
                 </div>
 
-              </div>
-
-              <!-- CAMPOS SOLO EN CREAR -->
-              @if (isCreate) {
-                <div class="form-grid">
-
+                <!-- SOLO EN CREAR -->
+                @if (isCreate) {
                   <div class="field">
                     <label>Fecha de nacimiento</label>
                     <p-datepicker
                       formControlName="fechaNacimiento"
                       dateFormat="yy-mm-dd"
+                      [maxDate]="today"
                       class="w-full"
                     />
+                    @if (playerForm.get('fechaNacimiento')?.invalid && playerForm.get('fechaNacimiento')?.touched) {
+                      <small class="error">Fecha requerida y no puede ser futura</small>
+                    }
                   </div>
 
                   <div class="field">
@@ -103,32 +86,99 @@
                   <div class="field">
                     <label>Género</label>
                     <div class="gender-toggle">
-                      <span>Femenino</span>
-                      <p-toggleswitch formControlName="esHombre" />
-                      <span>Masculino</span>
+                      <span [class.active-female]="!esHombre()">Femenino</span>
+                      <p-toggleswitch [(ngModel)]="esHombre" [ngModelOptions]="{standalone: true}" />
+                      <span [class.active-male]="esHombre()">Masculino</span>
                     </div>
                   </div>
+                }
 
+              </div>
+
+              <!-- LIGA Y CLUB -->
+              <h3 class="section-title">Club</h3>
+              <div class="form-grid">
+                <div class="field">
+                  <label>Liga</label>
+                  <p-select
+                    formControlName="idLiga"
+                    [options]="ligas()"
+                    optionLabel="Nombre"
+                    optionValue="Id"
+                    placeholder="Seleccioná liga"
+                    class="w-full"
+                    (onChange)="onLigaChange($event.value)"
+                  />
                 </div>
-              }
 
-              <!-- SKILLS -->
-              <div class="skills-section">
-                <h3>Habilidades</h3>
-                <div class="skills-grid" formArrayName="skills">
-                  @for (skill of skillsArray.controls; track $index) {
-                    <div class="field" [formGroupName]="$index">
-                      <label>{{ skills()[$index]?.nombre || 'Skill ' + ($index + 1) }}</label>
-                      <p-inputnumber
-                        formControlName="valor"
-                        [min]="1"
-                        [max]="99"
-                        class="w-full"
+                <div class="field">
+                  <label>Club</label>
+               <p-select
+  formControlName="idClub"
+  [options]="clubs()"
+  optionLabel="Nombre" 
+  optionValue="Id"
+  [placeholder]="clubs().length === 0 && selectedLiga() ? 'No hay clubes asignados en esta versión' : 'Seleccioná un club'"
+  [disabled]="clubs().length === 0"
+  class="w-full"
+/>
+                </div>
+              </div>
+
+              <!-- POSICIONES -->
+              <h3 class="section-title">Posiciones</h3>
+              <p class="section-hint">Seleccioná al menos una. La primera seleccionada será la principal — podés cambiarlo con el botón.</p>
+              <div class="posiciones-grid">
+                @for (pos of posiciones(); track pos.Id) {
+                  <div class="posicion-item" [class.selected]="isPosicionSelected(pos.Id)">
+                    <p-checkbox
+  [binary]="true"
+  [ngModel]="isPosicionSelected(pos.Id)"
+  [ngModelOptions]="{standalone: true}"
+  [disabled]="isPorteroSeleccionado() && pos.Nombre !== GK_NOMBRE"
+  (onChange)="onPosicionChange(pos, $event.checked)"
+/>
+                    <span class="posicion-nombre">{{ pos.Nombre }}</span>
+                    @if (isPosicionSelected(pos.Id)) {
+                      <p-tag
+                        [value]="posicionesArray.controls[0]?.get('idPosicion')?.value === pos.Id ? 'Principal' : 'Secundaria'"
+                        [severity]="posicionesArray.controls[0]?.get('idPosicion')?.value === pos.Id ? 'success' : 'secondary'"
+                        class="clickable"
+                        (click)="setPrincipal(pos.Id)"
                       />
+                    }
+                  </div>
+                }
+              </div>
+
+              <!-- HABILIDADES -->
+              @if (posicionesArray.length > 0) {
+                <h3 class="section-title">
+                  Habilidades
+                  @if (filteredSkills().length > 0) {
+                    <span class="calificacion-badge">Calificación estimada: {{ calificacion() }}</span>
+                  }
+                </h3>
+                <div class="skills-grid" formArrayName="skills">
+                  @for (skill of filteredSkills(); track skill.Id; let i = $index) {
+                    <div class="field" [formGroupName]="i">
+                      <label>{{ skill.Nombre }}</label>
+                      <p-inputnumber
+  formControlName="valor"
+  [min]="1"
+  [max]="99"
+  [useGrouping]="false"
+  [maxlength]="2"
+  (onInput)="onSkillValueChange()"
+  (onBlur)="onSkillValueChange()"
+  class="w-full"
+/>
                     </div>
                   }
                 </div>
-              </div>
+              } @else {
+                <p class="section-hint">Seleccioná al menos una posición para ver las habilidades.</p>
+              }
 
               <!-- ERROR -->
               @if (errorMessage()) {
@@ -141,14 +191,9 @@
                   type="submit"
                   [label]="isCreate ? 'Crear jugador' : 'Guardar cambios'"
                   [loading]="loading()"
-                  [disabled]="playerForm.invalid"
+                  [disabled]="playerForm.invalid || posicionesArray.length === 0"
                 />
-                <p-button
-                  type="button"
-                  label="Cancelar"
-                  severity="secondary"
-                  (onClick)="goBack()"
-                />
+                <p-button type="button" label="Cancelar" severity="secondary" (onClick)="goBack()" />
               </div>
 
             </form>
@@ -159,7 +204,5 @@
     </div>
   </main>
 
-  @if (!standalone()) {
-  <app-footer />
-}
+  @if (!standalone()) { <app-footer /> }
 </div>

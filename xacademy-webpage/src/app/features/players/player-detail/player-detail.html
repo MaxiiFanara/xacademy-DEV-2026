@@ -1,11 +1,9 @@
 <div class="page-wrapper">
-
   <app-navbar />
 
   <main class="main-content">
     <div class="container">
 
-      <!-- BOTON VOLVER -->
       <p-button
         label="Volver al listado"
         icon="pi pi-arrow-left"
@@ -25,14 +23,14 @@
         <app-player-card-header [player]="p" />
 
         <!-- RADAR CHART -->
-        @defer (on idle) {
-          <div class="chart-section">
-            <h3 class="section-title">Habilidades</h3>
-            <app-radar-chart [skills]="p.skills" />
-          </div>
-        } @placeholder {
-          <app-loading-spinner />
-        }
+        <div class="section">
+          <h3 class="section-title">Habilidades</h3>
+          @defer (on idle) {
+            <app-radar-chart [labels]="p.labels" [data]="p.skillsData" />
+          } @placeholder {
+            <app-loading-spinner />
+          }
+        </div>
 
         <!-- BOTON VER EVOLUCION -->
         <div class="timeline-action">
@@ -47,10 +45,12 @@
         <!-- TIMELINE -->
         @if (showTimeline()) {
           @defer (on immediate) {
-            <app-skill-timeline
-              [idJugador]="p.idJugador"
-              [skills]="skills()"
-            />
+            <div class="section">
+              <app-skill-timeline
+                [idJugador]="playerId()"
+                [skills]="availableSkills()"
+              />
+            </div>
           } @placeholder {
             <app-loading-spinner />
           }
@@ -65,5 +65,4 @@
   </main>
 
   <app-footer />
-
 </div>
