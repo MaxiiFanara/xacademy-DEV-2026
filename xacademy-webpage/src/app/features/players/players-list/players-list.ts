@@ -1,6 +1,7 @@
 import { Component, inject, signal, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { PlayerService, PlayerFilters } from '../../../core/services/player';
+import { ExportService } from '../../../core/services/export';
 import { Player } from '../../../core/models/player.model';
 
 import { Navbar } from '../../../shared/components/navbar/navbar';
@@ -30,7 +31,9 @@ export class PlayersList implements OnInit {
   private playerService = inject(PlayerService);
   private router = inject(Router);
   private messageService = inject(MessageService);
+  private exportService = inject(ExportService);
 
+  exporting = signal(false);
   players = signal<Player[]>([]);
   loading = signal(false);
   showCreateDialog = signal(false);
@@ -63,6 +66,17 @@ export class PlayersList implements OnInit {
       }
     });
   }
+
+
+  downloadCSV() {
+  this.exporting.set(true);
+  this.playerService.exportPlayers(this.currentFilters()).subscribe({
+    next: (players) => {
+      this.exportService.exportToCSV(players, 'jugadores-fifa');
+      this.exporting.set(false);
+    },
+    error: () => this.exporting.set(false)
+    })}
 
   onFilterChange(filters: PlayerFilters) {
     this.currentFilters.set(filters);

@@ -44,13 +44,16 @@ player = signal<PlayerDetailData | null>(null);  selectedSkill = signal<Skill | 
   playerId = signal<number>(0);
   availableSkills = signal<Skill[]>([]);
 
-  ngOnInit() {
+ngOnInit() {
   const id = Number(this.route.snapshot.paramMap.get('id'));
-  this.playerId.set(id);
   this.loadPlayer(id);
   this.loadSkills();
-}
 
+  // Obtener el IdJugador real para la timeline
+  this.playerService.getIdJugador(id).subscribe({
+    next: (res) => this.playerId.set(res.IdJugador)
+  });
+}
   loadPlayer(id: number) {
     this.playerService.getPlayerById(id).subscribe({
       next: (player) => {

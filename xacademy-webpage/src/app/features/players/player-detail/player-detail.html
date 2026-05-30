@@ -44,17 +44,13 @@
 
         <!-- TIMELINE -->
         @if (showTimeline()) {
-          @defer (on immediate) {
-            <div class="section">
-              <app-skill-timeline
-                [idJugador]="playerId()"
-                [skills]="availableSkills()"
-              />
-            </div>
-          } @placeholder {
-            <app-loading-spinner />
-          }
-        }
+  <div class="section">
+    <app-skill-timeline
+      [idJugador]="playerId()"
+      [skills]="availableSkills()"
+    />
+  </div>
+}
       }
 
       @if (!loading() && !player()) {

@@ -7,8 +7,8 @@ class JugadorController extends BaseController {
 
 getAll = async (req, res) => {
   try {
-    const page       = parseInt(req.query.page)  || 1;
-    const limit      = parseInt(req.query.limit) || 20;
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 20;
     const { versionId, esHombre, creadoPorMi } = req.query;
 
     if (page < 1 || limit < 1) {
@@ -21,7 +21,7 @@ getAll = async (req, res) => {
       versionId,
       esHombre,
       creadoPorMi,
-      usuarioEmail: req.user.Email, // ← viene del JWT via passport
+      usuarioEmail: req.user.Email,
     });
 
     res.status(200).json(result);
@@ -42,6 +42,31 @@ getAll = async (req, res) => {
       res.status(500).json({ error: error.message });
     }
   };
+
+exportAll = async (req, res) => {
+  try {
+    const { versionId, esHombre, creadoPorMi } = req.query;
+    const data = await this.service.exportAll({
+      versionId,
+      esHombre,
+      creadoPorMi,
+      usuarioEmail: req.user.Email
+    });
+    res.status(200).json(data);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+  getIdJugador = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const result = await this.service.getIdJugador(id);
+    res.status(200).json(result);
+  } catch (error) {
+    res.status(404).json({ error: error.message });
+  }
+};
 
   getEvolucionSkill = async (req, res) => {
     try {

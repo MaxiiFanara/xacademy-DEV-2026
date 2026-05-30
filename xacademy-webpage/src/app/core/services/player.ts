@@ -27,6 +27,21 @@ export class PlayerService {
 
   constructor(private http: HttpClient) {}
 
+  getIdJugador(idVersionJugador: number) {
+  return this.http.get<{ IdJugador: number }>(`${this.API}/${idVersionJugador}/jugador-id`, {
+    withCredentials: true
+  });
+}
+
+exportPlayers(filters: PlayerFilters = {}) {
+  let params = new HttpParams();
+  if (filters.esHombre !== undefined) params = params.set('esHombre', filters.esHombre.toString());
+  if (filters.versionId !== undefined) params = params.set('versionId', filters.versionId.toString());
+  if (filters.creadoPorMi) params = params.set('creadoPorMi', 'true');
+
+  return this.http.get<Player[]>(`${this.API}/export`, { params, withCredentials: true });
+}
+
   // Obtener listado con filtros opcionales y paginación
   getPlayers(filters: PlayerFilters = {}) {
     let params = new HttpParams();

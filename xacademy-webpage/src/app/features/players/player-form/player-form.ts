@@ -1,4 +1,4 @@
-import { Component, inject, signal, OnInit, computed, input } from '@angular/core';
+import { Component, inject, signal, OnInit, computed, input, output } from '@angular/core';
 import { ReactiveFormsModule, FormBuilder, Validators, FormArray } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { PlayerService } from '../../../core/services/player';
@@ -56,6 +56,8 @@ export class PlayerForm implements OnInit {
   loading = signal(false);
   errorMessage = signal<string | null>(null);
 
+  saved = output<void>();
+
   // Datos para combos
   nacionalidades = signal<Nacionalidad[]>([]);
   ligas = signal<Liga[]>([]);
@@ -91,7 +93,7 @@ private updateCalificacion() {
   playerForm = this.fb.group({
     nombre: ['', [Validators.required, Validators.minLength(2)]],
     apellido: ['', [Validators.required, Validators.minLength(2)]],
-    imagenUrl: ['', Validators.required],
+    imagenUrl: [''],
     idNacionalidad: [null as number | null, Validators.required],
     idLiga: [null as number | null, Validators.required],
     idClub: [null as number | null, Validators.required],
@@ -227,16 +229,20 @@ onPosicionChange(posicion: Position, checked: boolean) {
     });
   }
 
-  buildSkillsArray() {
-    while (this.skillsArray.length) this.skillsArray.removeAt(0);
-    this.filteredSkills().forEach(skill => {
-      this.skillsArray.push(this.fb.group({
-        idSkill: [skill.Id],
-        valor: [50, [Validators.required, Validators.min(1), Validators.max(99)]]
-      }));
-    });
-      this.updateCalificacion();
+ buildSkillsArray() {
+  while (this.skillsArray.length) this.skillsArray.removeAt(0);
+  this.filteredSkills().forEach(skill => {
+    this.skillsArray.push(this.fb.group({
+      idSkill: [skill.Id],
+      valor: [50, [Validators.required, Validators.min(1), Validators.max(99)]]
+    }));
+  });
+  this.updateCalificacion();
+  // Calcular calificación inicial
+  if (this.filteredSkills().length > 0) {
+    this.calificacion.set(50);
   }
+}
 
   onSubmit() {
     if (this.playerForm.invalid) return;
@@ -264,9 +270,9 @@ onPosicionChange(posicion: Position, checked: boolean) {
 
       this.playerService.createPlayer(dto as any).subscribe({
         next: () => {
-          this.loading.set(false);
-          this.router.navigate(['/players']);
-        },
+  this.loading.set(false);
+  this.saved.emit();
+},
         error: (err) => {
           this.loading.set(false);
           this.errorMessage.set(err.error?.error || 'Error al crear el jugador');

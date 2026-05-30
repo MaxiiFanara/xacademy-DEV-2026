@@ -2,12 +2,12 @@
   <h3 class="timeline-title">Evolución de habilidad a lo largo del tiempo</h3>
 
   <div class="skill-selector">
-    <p-select
-      [options]="skills()"
-      optionLabel="nombre"
-      placeholder="Seleccioná una habilidad"
-      (onChange)="onSkillChange($event.value)"
-    />
+  <p-select
+  [options]="skills()"
+  optionLabel="Nombre"
+  placeholder="Seleccioná una habilidad"
+  (onChange)="onSkillChange($event.value)"
+/>
   </div>
 
   @if (loading()) {
@@ -15,17 +15,17 @@
   }
 
   @if (!loading() && evolution().length > 0) {
-    <p-timeline [value]="evolution()" layout="horizontal" align="bottom">
-      <ng-template #content let-item>
-        <div class="timeline-item">
-          <span class="timeline-version">{{ item.version }}</span>
-          <span class="timeline-value">{{ item.valor }}</span>
-        </div>
-      </ng-template>
-      <ng-template #opposite let-item>
-        <span class="timeline-year">{{ item.anio }}</span>
-      </ng-template>
-    </p-timeline>
+    <p-timeline [value]="evolution()" layout="vertical" align="left">
+  <ng-template #content let-item>
+    <div class="timeline-item">
+      <span class="timeline-version">{{ item.version }}</span>
+      <span class="timeline-value">{{ item.valor }}</span>
+    </div>
+  </ng-template>
+  <ng-template #opposite let-item>
+    <span class="timeline-year">{{ item.anio }}</span>
+  </ng-template>
+</p-timeline>
   }
 
   @if (!loading() && selectedSkill() && evolution().length === 0) {

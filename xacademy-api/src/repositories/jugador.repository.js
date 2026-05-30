@@ -9,12 +9,12 @@ constructor() {
     super(JugadorModel);
   }
 
-  async findAll({ page = 1, limit = 20, versionId, esHombre, idUsuarioCreador } = {}) {
+async findAll({ page = 1, limit = 20, versionId, esHombre, idUsuarioCreador } = {}) {
   const offset = (page - 1) * limit;
-  const where  = {};
+  const where = {};
 
-  if (versionId !== undefined)      where.IdVersion        = versionId;
-  if (esHombre  !== undefined)      where.EsHombre         = esHombre === 'true' || esHombre === true;
+  if (versionId !== undefined) where.IdVersion = versionId;
+  if (esHombre !== undefined) where.EsHombre = esHombre === 'true' || esHombre === true;
   if (idUsuarioCreador !== undefined) where.IdUsuarioCreador = idUsuarioCreador;
 
   const { count, rows } = await VwListadoJugadores.findAndCountAll({
@@ -24,13 +24,23 @@ constructor() {
   });
 
   return {
-    total:       count,
-    totalPages:  Math.ceil(count / limit),
+    total: count,
+    totalPages: Math.ceil(count / limit),
     currentPage: page,
-    perPage:     limit,
-    data:        rows,
+    perPage: limit,
+    data: rows,
   };
 }
+
+async findAllExport({ versionId, esHombre, idUsuarioCreador } = {}) {
+  const where = {};
+  if (versionId !== undefined) where.IdVersion = versionId;
+  if (esHombre !== undefined) where.EsHombre = esHombre === 'true' || esHombre === true;
+  if (idUsuarioCreador !== undefined) where.IdUsuarioCreador = idUsuarioCreador;
+  return await VwListadoJugadores.findAll({ where });
+}
+
+
 
   // src/repositories/jugador.repository.js
 async findVersionJugadorById(idVersionJugador) {

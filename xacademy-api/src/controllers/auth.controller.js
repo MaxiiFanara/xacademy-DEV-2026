@@ -6,14 +6,13 @@ class AuthController {
   }
 
   register = async (req, res) => {
-    try {
-      const { accessToken, refreshToken, user } = await this.authService.register(req.body);
-      setTokenCookies(res, accessToken, refreshToken);
-      res.status(201).json({ user });
-    } catch (error) {
-      res.status(400).json({ error: error.message });
-    }
-  };
+  try {
+    const { user } = await this.authService.register(req.body);
+    res.status(201).json({ user });
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+};
 
   login = async (req, res) => {
     try {

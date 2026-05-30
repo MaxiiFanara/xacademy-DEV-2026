@@ -25,15 +25,22 @@
       } @placeholder {
         <app-loading-spinner />
       }
-
-      <!-- BOTON CREAR -->
       <div class="create-action">
-        <p-button
+  <p-button
+    label="Descargar CSV"
+    icon="pi pi-download"
+    severity="secondary"
+    [loading]="exporting()"
+    (onClick)="downloadCSV()"
+  />
+  <div>
+  <p-button
           label="Crear jugador"
           icon="pi pi-plus"
           (onClick)="openCreateDialog()"
-        />
-      </div>
+        /></div>
+  
+</div>
 
       <!-- DIALOG CREAR JUGADOR -->
       <p-dialog
@@ -43,7 +50,7 @@
         [style]="{ width: '80vw', maxWidth: '900px' }"
         [draggable]="false"
       >
-        <app-player-form [standalone]="true" />
+        <app-player-form [standalone]="true" (saved)="closeCreateDialog()" />
       </p-dialog>
 
     </div>

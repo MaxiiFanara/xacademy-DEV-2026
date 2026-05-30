@@ -7,7 +7,7 @@ import { Skill, SkillEvolution } from '../models/skill.model';
 })
 export class SkillService {
 
-  private readonly API = 'http://localhost:8080/api';
+  private readonly API = '/api';
 
   constructor(private http: HttpClient) {}
 

@@ -9,9 +9,12 @@ constructor(jugadorRepository, authRepository) {
 async getAll({ page, limit, versionId, esHombre, creadoPorMi, usuarioEmail } = {}) {
   let idUsuarioCreador;
 
+  // Obtener el usuario logueado siempre — lo necesitamos para el filtro base
+const usuario = await this.authRepository.findByField('Email', usuarioEmail);
+  if (!usuario) throw new Error('Usuario no encontrado');
+
   if (creadoPorMi === 'true' || creadoPorMi === true) {
-    const usuario = await this.authRepository.findByEmail(usuarioEmail); // ← this
-    if (!usuario) throw new Error('Usuario no encontrado');
+    // Filtrar solo los creados por este usuario
     idUsuarioCreador = usuario.Id;
   }
 
@@ -21,7 +24,14 @@ async getAll({ page, limit, versionId, esHombre, creadoPorMi, usuarioEmail } = {
     versionId,
     esHombre,
     idUsuarioCreador,
+    idUsuarioLogueado: usuario.Id  // ← siempre se pasa para el filtro base
   });
+}
+
+async getIdJugador(idVersionJugador) {
+  const versionJugador = await this.repository.findVersionJugadorById(idVersionJugador);
+  if (!versionJugador) throw new Error('Version de jugador no encontrada');
+  return { IdJugador: versionJugador.IdJugador };
 }
   async getDetailById(id) {
     const rows = await this.repository.findDetailById(id);
@@ -48,6 +58,27 @@ async getAll({ page, limit, versionId, esHombre, creadoPorMi, usuarioEmail } = {
       skillsData,
     };
   }
+
+
+async exportAll({ versionId, esHombre, creadoPorMi, usuarioEmail } = {}) {
+  let idUsuarioCreador;
+
+const usuario = await this.authRepository.findByField('Email', usuarioEmail);
+  if (!usuario) throw new Error('Usuario no encontrado');
+
+  if (creadoPorMi === 'true' || creadoPorMi === true) {
+    idUsuarioCreador = usuario.Id;
+  }
+
+  return await this.repository.findAllExport({
+    versionId,
+    esHombre,
+    idUsuarioCreador,
+    idUsuarioLogueado: usuario.Id
+  });
+}
+
+
 
   async getEvolucionSkill(idJugador, idSkill) {
     if (!idSkill) {

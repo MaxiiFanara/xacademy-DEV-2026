@@ -8,6 +8,8 @@ const router = Router();
 router.use(requireAuth);
 
 router.get('/',              jugadorController.getAll);
+router.get('/export', requireAuth, jugadorController.exportAll);
+router.get('/:id/jugador-id', jugadorController.getIdJugador);
 router.get('/:id/evolucion', jugadorController.getEvolucionSkill);
 router.get('/:id',           jugadorController.getById);
 router.post('/',             ...validateCreateJugador, jugadorController.create);
