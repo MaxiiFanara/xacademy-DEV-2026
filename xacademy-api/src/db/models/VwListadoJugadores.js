@@ -7,6 +7,7 @@ export const VwListadoJugadores = sequelize.define('VwListadoJugadores', {
   IdVersion:         { type: DataTypes.INTEGER, allowNull: false },
   EsHombre:          { type: DataTypes.BOOLEAN, allowNull: false },
   IdUsuarioCreador:  { type: DataTypes.INTEGER, allowNull: true  },
+  EsDelJuegoBase:    { type: DataTypes.BOOLEAN, allowNull: false },
   Juego:             { type: DataTypes.STRING,  allowNull: false },
   Foto:              { type: DataTypes.STRING,  allowNull: true  },
   Nombre:            { type: DataTypes.STRING,  allowNull: false },

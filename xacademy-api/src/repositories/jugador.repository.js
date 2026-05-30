@@ -3,24 +3,31 @@ import { sequelize } from '../db/connection.js';
 import { JugadorModel,VwListadoJugadores,VwDetalleJugador,VwEvolucionSkillJugador,VersionJugadorModel,
   VersionJugadorPosicionModel,
   VersionJugadorSkillModel,} from '../db/models/index.js';
+  import { Op } from 'sequelize';
 
 class JugadorRepository extends BaseRepository {
 constructor() {
     super(JugadorModel);
   }
 
-async findAll({ page = 1, limit = 20, versionId, esHombre, idUsuarioCreador } = {}) {
+async findAll({ page = 1, limit = 20, versionId, esHombre, idUsuarioCreador, idUsuarioLogueado } = {}) {
   const offset = (page - 1) * limit;
   const where = {};
 
   if (versionId !== undefined) where.IdVersion = versionId;
   if (esHombre !== undefined) where.EsHombre = esHombre === 'true' || esHombre === true;
-  if (idUsuarioCreador !== undefined) where.IdUsuarioCreador = idUsuarioCreador;
+
+  if (idUsuarioCreador !== undefined) {
+    where.IdUsuarioCreador = idUsuarioCreador;
+  } else {
+    where[Op.or] = [
+      { EsDelJuegoBase: 1 },
+      { IdUsuarioCreador: idUsuarioLogueado }
+    ];
+  }
 
   const { count, rows } = await VwListadoJugadores.findAndCountAll({
-    where,
-    limit,
-    offset,
+    where, limit, offset,
   });
 
   return {
@@ -31,12 +38,21 @@ async findAll({ page = 1, limit = 20, versionId, esHombre, idUsuarioCreador } = 
     data: rows,
   };
 }
-
-async findAllExport({ versionId, esHombre, idUsuarioCreador } = {}) {
+async findAllExport({ versionId, esHombre, idUsuarioCreador, idUsuarioLogueado } = {}) {
   const where = {};
+
   if (versionId !== undefined) where.IdVersion = versionId;
   if (esHombre !== undefined) where.EsHombre = esHombre === 'true' || esHombre === true;
-  if (idUsuarioCreador !== undefined) where.IdUsuarioCreador = idUsuarioCreador;
+
+  if (idUsuarioCreador !== undefined) {
+    where.IdUsuarioCreador = idUsuarioCreador;
+  } else {
+    where[Op.or] = [
+      { EsDelJuegoBase: 1 },
+      { IdUsuarioCreador: idUsuarioLogueado }
+    ];
+  }
+
   return await VwListadoJugadores.findAll({ where });
 }
 
