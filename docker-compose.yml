@@ -23,7 +23,6 @@ services:
       start_period: 30s
     networks:
       - fifa-network
-
   # ==========================================
   # API NODE
   # ==========================================
@@ -36,8 +35,9 @@ services:
     ports:
       - "${PORT}:${PORT}"
     volumes:
-      - ./xacademy-api:/api # Ajusta '/app' a la ruta de tu WORKDIR en tu Dockerfile
+      - ./xacademy-api:/api
       - /api/node_modules
+      - ./xacademy-api/img:/api/img
     environment:
       - PORT=${PORT}
       - NODE_ENV=${NODE_ENV}
@@ -62,10 +62,9 @@ services:
       - OPENAI_API_KEY=${OPENAI_API_KEY}
     depends_on:
       db:
-        condition: service_healthy   # ← espera al healthcheck
+        condition: service_healthy
     networks:
       - fifa-network
-
   # ==========================================
   # FRONTEND ANGULAR
   # ==========================================
@@ -81,14 +80,12 @@ services:
       - api
     networks:
       - fifa-network
-
   # ==========================================
   # REDES
   # ==========================================
 networks:
   fifa-network:
     driver: bridge
-
   # ==========================================
   # VOLUMENES
   # ==========================================

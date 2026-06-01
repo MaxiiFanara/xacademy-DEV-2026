@@ -1,8 +1,19 @@
 import BaseRepository from '../core/base.repository.js';
 import { sequelize } from '../db/connection.js';
-import { JugadorModel,VwListadoJugadores,VwDetalleJugador,VwEvolucionSkillJugador,VersionJugadorModel,
+import { 
+  JugadorModel, 
+  VwListadoJugadores, 
+  VwDetalleJugador, 
+  VwEvolucionSkillJugador, 
+  VersionJugadorModel,
   VersionJugadorPosicionModel,
-  VersionJugadorSkillModel,} from '../db/models/index.js';
+  VersionJugadorSkillModel,
+  NacionalidadModel,
+  ClubModel,
+  VersionModel,
+  PosicionModel,
+  SkillModel
+} from '../db/models/index.js';
   import { Op } from 'sequelize';
 
 class JugadorRepository extends BaseRepository {
@@ -56,6 +67,12 @@ async findAllExport({ versionId, esHombre, idUsuarioCreador, idUsuarioLogueado }
   return await VwListadoJugadores.findAll({ where });
 }
 
+// En el repository agregá este método
+async findPosicionesByVersionJugador(idVersionJugador) {
+  return await VersionJugadorPosicionModel.findAll({
+    where: { IdVersionJugador: idVersionJugador }
+  });
+}
 
 
   // src/repositories/jugador.repository.js
@@ -123,12 +140,19 @@ async findVersionJugadorById(idVersionJugador) {
     }
   }
 
-  async actualizarCompleto({ idVersionJugador, idJugador, jugador, versionJugador, posiciones, skills }) {
+async actualizarCompleto({ idVersionJugador, jugador, versionJugador, posiciones, skills }) {
   const t = await sequelize.transaction();
   try {
-    // 1. Actualizar tabla Jugador
+    // Obtener el IdJugador real desde VersionJugador
+    const version = await VersionJugadorModel.findOne({
+      where: { Id: idVersionJugador },
+      transaction: t,
+    });
+    if (!version) throw new Error('VersionJugador no encontrada');
+
+    // 1. Actualizar tabla Jugador con el ID real obtenido de la BD
     await JugadorModel.update(jugador, {
-      where: { Id: idJugador },
+      where: { Id: version.IdJugador },
       transaction: t,
     });
 
@@ -174,7 +198,129 @@ async findVersionJugadorById(idVersionJugador) {
   }
 }
 
+async importRow(row, cache) {
+  const idNacionalidad = cache.nacionalidades[row.nacionalidad?.toLowerCase()];
+  const idClub = cache.clubs[row.club?.toLowerCase()];
+  const idVersion = cache.versiones[row.version?.toLowerCase()];
+  const idPosicion = cache.posiciones[row.posicionPrincipal?.toLowerCase()];
 
+  if (!idNacionalidad || !idClub || !idVersion || !idPosicion) {
+    throw new Error(`Datos no encontrados: nacionalidad=${row.nacionalidad}, club=${row.club}, version=${row.version}, posicion=${row.posicionPrincipal}`);
+  }
+
+  const t = await sequelize.transaction();
+  try {
+    let jugador = await JugadorModel.findOne({
+      where: {
+        Nombre: row.nombre,
+        Apellido: row.apellido,
+        FechaNacimiento: row.fechaNacimiento || null,
+      },
+      transaction: t,
+    });
+
+    if (!jugador) {
+      jugador = await JugadorModel.create({
+        Nombre: row.nombre,
+        Apellido: row.apellido,
+        FechaNacimiento: row.fechaNacimiento || null,
+        EsHombre: row.esHombre === 'true' || row.esHombre === true,
+        EsRetirado: false,
+        AnioRetiro: null,
+        EsDelJuegoBase: true,
+        EsActivo: true,
+        IdNacionalidad: idNacionalidad,
+        IdUsuarioCreador: null,
+      }, { transaction: t });
+    }
+
+    let versionJugador = await VersionJugadorModel.findOne({
+      where: { IdJugador: jugador.Id, IdVersion: idVersion },
+      transaction: t,
+    });
+
+    if (!versionJugador) {
+      versionJugador = await VersionJugadorModel.create({
+        IdJugador: jugador.Id,
+        IdVersion: idVersion,
+        IdClub: idClub,
+        ImagenPath: null,
+        Calificacion: parseInt(row.calificacion) || 0,
+      }, { transaction: t });
+    } else {
+      await VersionJugadorModel.update({
+        IdClub: idClub,
+        Calificacion: parseInt(row.calificacion) || 0,
+      }, {
+        where: { Id: versionJugador.Id },
+        transaction: t,
+      });
+    }
+
+    await VersionJugadorPosicionModel.destroy({
+      where: { IdVersionJugador: versionJugador.Id },
+      transaction: t,
+    });
+    await VersionJugadorPosicionModel.create({
+      IdVersionJugador: versionJugador.Id,
+      IdPosicion: idPosicion,
+      EsPrincipal: true,
+    }, { transaction: t });
+
+    const skillNames = ['PAC', 'SHO', 'PAS', 'DRI', 'DEF', 'PHY', 'DIV', 'HAN', 'KIC', 'REF', 'SPE', 'POS'];
+    const skillsData = skillNames
+      .filter(name => row[name] !== undefined && row[name] !== '')
+      .map(name => {
+        const skill = cache.skills[name.toLowerCase()];
+        if (!skill) return null;
+        return {
+          IdVersionJugador: versionJugador.Id,
+          IdSkill: skill.id,
+          Valor: parseInt(row[name]) || 0,
+        };
+      })
+      .filter(Boolean);
+
+    if (skillsData.length > 0) {
+      await VersionJugadorSkillModel.destroy({
+        where: { IdVersionJugador: versionJugador.Id },
+        transaction: t,
+      });
+      await VersionJugadorSkillModel.bulkCreate(skillsData, { transaction: t });
+    }
+
+    await t.commit();
+  } catch (error) {
+    await t.rollback();
+    throw error;
+  }
+}
+
+async loadCache() {
+  const [nacs, clubs, vers, poss, skills] = await Promise.all([
+    NacionalidadModel.findAll(),
+    ClubModel.findAll(),
+    VersionModel.findAll(),
+    PosicionModel.findAll(),
+    SkillModel.findAll(),
+  ]);
+
+  const cache = {
+    nacionalidades: {},
+    clubs: {},
+    versiones: {},
+    posiciones: {},
+    skills: {},
+  };
+
+  nacs.forEach(n => cache.nacionalidades[n.Nombre.toLowerCase()] = n.Id);
+  clubs.forEach(c => cache.clubs[c.Nombre.toLowerCase()] = c.Id);
+  vers.forEach(v => cache.versiones[v.Nombre.toLowerCase()] = v.Id);
+  poss.forEach(p => cache.posiciones[p.Nombre.toLowerCase()] = p.Id);
+  skills.forEach(s => cache.skills[s.Nombre.toLowerCase()] = { id: s.Id, esArquero: s.EsArquero });
+
+  return cache;
+}
 }
 
 export default JugadorRepository;

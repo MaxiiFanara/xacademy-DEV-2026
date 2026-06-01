@@ -311,7 +311,7 @@ CREATE TABLE VersionJugador (
     IdJugador     INT          NOT NULL,
     IdVersion     INT          NOT NULL,
     IdClub        INT          NOT NULL,
-    ImagenUrl     VARCHAR(500) NULL,
+    ImagenPath VARCHAR(500) NULL,
     Calificacion  INT          NOT NULL DEFAULT 0,
     CONSTRAINT pk_versionjugador                 PRIMARY KEY (Id),
     CONSTRAINT uq_versionjugador_jugador_version UNIQUE (IdJugador, IdVersion),
@@ -483,31 +483,29 @@ CREATE INDEX idx_usuario_providerid           ON Usuario(ProviderId);
 --   LIMIT 20 OFFSET 0;
 -- ------------------------------------------------------------
 CREATE VIEW vw_ListadoJugadores AS
-SELECT 
+SELECT
+    vj.Id AS IdVersionJugador,
+    j.Id AS IdJugador,
+    vj.IdVersion,
+    j.EsHombre,
+    j.IdUsuarioCreador,
+    j.EsDelJuegoBase,
     v.Nombre AS Juego,
-    vj.ImagenUrl AS Foto,
+    vj.ImagenPath AS Foto,
     j.Nombre,
     j.Apellido,
     n.Nombre AS Nacionalidad,
     c.Nombre AS Club,
     p.Nombre AS PosicionPrincipal,
     vj.Calificacion
-FROM 
-    VersionJugador vj
--- Joins para datos básicos del jugador
-INNER JOIN 
-    Jugador j ON vj.IdJugador = j.Id
-INNER JOIN 
-    Nacionalidad n ON j.IdNacionalidad = n.Id
-INNER JOIN 
-    Version v ON vj.IdVersion = v.Id
-INNER JOIN 
-    Club c ON vj.IdClub = c.Id
--- Join para obtener SOLO la posición principal
-LEFT JOIN 
-    VersionJugadorPosicion vjp ON vj.Id = vjp.IdVersionJugador AND vjp.EsPrincipal = 1
-LEFT JOIN 
-    Posicion p ON vjp.IdPosicion = p.Id;
+FROM VersionJugador vj
+INNER JOIN Jugador j ON vj.IdJugador = j.Id
+INNER JOIN Nacionalidad n ON j.IdNacionalidad = n.Id
+INNER JOIN Version v ON vj.IdVersion = v.Id
+INNER JOIN Club c ON vj.IdClub = c.Id
+LEFT JOIN VersionJugadorPosicion vjp ON vj.Id = vjp.IdVersionJugador AND vjp.EsPrincipal = 1
+LEFT JOIN Posicion p ON vjp.IdPosicion = p.Id;
+
 
 -- ------------------------------------------------------------
 -- VISTA 2: vw_DetalleJugador
@@ -533,32 +531,29 @@ LEFT JOIN
 --   GROUP BY Skill, Valor;
 -- ------------------------------------------------------------
 CREATE VIEW vw_DetalleJugador AS
-SELECT 
+SELECT
     vj.Id AS IdVersionJugador,
+    j.Id AS IdJugador,
     v.Nombre AS Juego,
-    j.Nombre,
-    j.Apellido,
+    j.Nombre AS Nombre,
+    j.Apellido AS Apellido,
+    j.IdNacionalidad AS IdNacionalidad,
     n.Nombre AS Nacionalidad,
+    vj.IdClub AS IdClub,
     c.Nombre AS Club,
+    c.IdLiga AS IdLiga,
+    vj.ImagenPath AS ImagenUrl,
+    vjs.IdSkill AS IdSkill,
     s.Nombre AS Skill,
     vjs.Valor AS ValorSkill,
-    vj.Calificacion
-FROM 
-    VersionJugador vj
--- Joins para los datos del jugador y su entorno
-INNER JOIN 
-    Jugador j ON vj.IdJugador = j.Id
-INNER JOIN 
-    Nacionalidad n ON j.IdNacionalidad = n.Id
-INNER JOIN 
-    Version v ON vj.IdVersion = v.Id
-INNER JOIN 
-    Club c ON vj.IdClub = c.Id
--- Joins para traer de forma dinámica todas sus skills
-INNER JOIN 
-    VersionJugadorSkill vjs ON vj.Id = vjs.IdVersionJugador
-INNER JOIN 
-    Skill s ON vjs.IdSkill = s.Id;
+    vj.Calificacion AS Calificacion
+FROM VersionJugador vj
+INNER JOIN Jugador j ON vj.IdJugador = j.Id
+INNER JOIN Nacionalidad n ON j.IdNacionalidad = n.Id
+INNER JOIN Version v ON vj.IdVersion = v.Id
+INNER JOIN Club c ON vj.IdClub = c.Id
+INNER JOIN VersionJugadorSkill vjs ON vj.Id = vjs.IdVersionJugador
+INNER JOIN Skill s ON vjs.IdSkill = s.Id;
 
 -- ------------------------------------------------------------
 -- VISTA 3: vw_LineaDeTiempo
@@ -789,16 +784,16 @@ VALUES
 -- Pasó de Barcelona → PSG (FIFA 21) → Inter Miami (FIFA 23)
 -- Cambió de CF/RW a solo RW a lo largo de los años
 -- ============================================================
-INSERT INTO VersionJugador (IdJugador, IdVersion, IdClub, ImagenUrl, Calificacion) VALUES
-(1, 1, 1,  'https://cdn.sofifa.net/players/158023/15/180_60.png', 0), -- VJ 1:  FIFA 15, Barcelona
-(1, 2, 1,  'https://cdn.sofifa.net/players/158023/16/180_60.png', 0), -- VJ 2:  FIFA 16, Barcelona
-(1, 3, 1,  'https://cdn.sofifa.net/players/158023/17/180_60.png', 0), -- VJ 3:  FIFA 17, Barcelona
-(1, 4, 1,  'https://cdn.sofifa.net/players/158023/18/180_60.png', 0), -- VJ 4:  FIFA 18, Barcelona
-(1, 5, 1,  'https://cdn.sofifa.net/players/158023/19/180_60.png', 0), -- VJ 5:  FIFA 19, Barcelona
-(1, 6, 1,  'https://cdn.sofifa.net/players/158023/20/180_60.png', 0), -- VJ 6:  FIFA 20, Barcelona
-(1, 7, 15, 'https://cdn.sofifa.net/players/158023/21/180_60.png', 0), -- VJ 7:  FIFA 21, PSG
-(1, 8, 15, 'https://cdn.sofifa.net/players/158023/22/180_60.png', 0), -- VJ 8:  FIFA 22, PSG
-(1, 9, 24, 'https://cdn.sofifa.net/players/158023/23/180_60.png', 0); -- VJ 9:  FIFA 23, Inter Miami
+INSERT INTO VersionJugador (IdJugador, IdVersion, IdClub, ImagenPath, Calificacion) VALUES
+(1, 1, 1,  '/img/messi2015.webp', 0), -- VJ 1:  FIFA 15, Barcelona
+(1, 2, 1,  '/img/messi2016.webp', 0), -- VJ 2:  FIFA 16, Barcelona
+(1, 3, 1,  '/img/messi2017.webp', 0), -- VJ 3:  FIFA 17, Barcelona
+(1, 4, 1,  '/img/messi2018.webp', 0), -- VJ 4:  FIFA 18, Barcelona
+(1, 5, 1,  '/img/messi2019.webp', 0), -- VJ 5:  FIFA 19, Barcelona
+(1, 6, 1,  '/img/messi2020.webp', 0), -- VJ 6:  FIFA 20, Barcelona
+(1, 7, 15, '/img/messi2021.webp', 0), -- VJ 7:  FIFA 21, PSG
+(1, 8, 15, '/img/messi2022.webp', 0), -- VJ 8:  FIFA 22, PSG
+(1, 9, 24, '/img/messi2023.webp', 0); -- VJ 9:  FIFA 23, Inter Miami
 
 -- Posiciones Messi: CF principal + RW alternativa (FIFA 15-16)
 --                   RW principal + CF alternativa (FIFA 17-23)
@@ -847,16 +842,16 @@ UPDATE VersionJugador SET Calificacion = 77 WHERE Id = 9;
 -- Barcelona → PSG (FIFA 18) → Al Nassr (FIFA 23)
 -- Siempre LW principal con ST como alternativa
 -- ============================================================
-INSERT INTO VersionJugador (IdJugador, IdVersion, IdClub, ImagenUrl, Calificacion) VALUES
-(2, 1, 1,  'https://cdn.sofifa.net/players/190871/15/180_60.png', 0), -- VJ 10: FIFA 15, Barcelona
-(2, 2, 1,  'https://cdn.sofifa.net/players/190871/16/180_60.png', 0), -- VJ 11: FIFA 16, Barcelona
-(2, 3, 1,  'https://cdn.sofifa.net/players/190871/17/180_60.png', 0), -- VJ 12: FIFA 17, Barcelona
-(2, 4, 15, 'https://cdn.sofifa.net/players/190871/18/180_60.png', 0), -- VJ 13: FIFA 18, PSG
-(2, 5, 15, 'https://cdn.sofifa.net/players/190871/19/180_60.png', 0), -- VJ 14: FIFA 19, PSG
-(2, 6, 15, 'https://cdn.sofifa.net/players/190871/20/180_60.png', 0), -- VJ 15: FIFA 20, PSG
-(2, 7, 15, 'https://cdn.sofifa.net/players/190871/21/180_60.png', 0), -- VJ 16: FIFA 21, PSG
-(2, 8, 15, 'https://cdn.sofifa.net/players/190871/22/180_60.png', 0), -- VJ 17: FIFA 22, PSG
-(2, 9, 25, 'https://cdn.sofifa.net/players/190871/23/180_60.png', 0); -- VJ 18: FIFA 23, Al Nassr
+INSERT INTO VersionJugador (IdJugador, IdVersion, IdClub, ImagenPath, Calificacion) VALUES
+(2, 1, 1,  '/img/neymar2015.webp', 0), -- VJ 10: FIFA 15, Barcelona
+(2, 2, 1,  '/img/neymar2016.webp', 0), -- VJ 11: FIFA 16, Barcelona
+(2, 3, 1,  '/img/neymar2017.webp', 0), -- VJ 12: FIFA 17, Barcelona
+(2, 4, 15, '/img/neymar2018.webp', 0), -- VJ 13: FIFA 18, PSG
+(2, 5, 15, '/img/neymar2019.webp', 0), -- VJ 14: FIFA 19, PSG
+(2, 6, 15, '/img/neymar2020.webp', 0), -- VJ 15: FIFA 20, PSG
+(2, 7, 15, '/img/neymar2021.webp', 0), -- VJ 16: FIFA 21, PSG
+(2, 8, 15, '/img/neymar2022.webp', 0), -- VJ 17: FIFA 22, PSG
+(2, 9, 25, '/img/neymar2023.webp', 0); -- VJ 18: FIFA 23, Al Nassr
 
 -- Posiciones Neymar: LW principal + ST alternativa (todas las versiones)
 INSERT INTO VersionJugadorPosicion (IdVersionJugador, IdPosicion, EsPrincipal) VALUES
@@ -904,10 +899,10 @@ UPDATE VersionJugador SET Calificacion = 74 WHERE Id = 18;
 -- Solo 3 versiones: FIFA 15, 16 y 17 (se retiró en 2017)
 -- Jugó toda su carrera en AS Roma como ST/CF
 -- ============================================================
-INSERT INTO VersionJugador (IdJugador, IdVersion, IdClub, ImagenUrl, Calificacion) VALUES
-(3, 1, 14, 'https://cdn.sofifa.net/players/25747/15/180_60.png', 0), -- VJ 19: FIFA 15, AS Roma
-(3, 2, 14, 'https://cdn.sofifa.net/players/25747/16/180_60.png', 0), -- VJ 20: FIFA 16, AS Roma
-(3, 3, 14, 'https://cdn.sofifa.net/players/25747/17/180_60.png', 0); -- VJ 21: FIFA 17, AS Roma (última)
+INSERT INTO VersionJugador (IdJugador, IdVersion, IdClub, ImagenPath, Calificacion) VALUES
+(3, 1, 14, 'img/totti2015.webp', 0), -- VJ 19: FIFA 15, AS Roma
+(3, 2, 14, 'img/totti2015.webp', 0), -- VJ 20: FIFA 16, AS Roma
+(3, 3, 14, 'img/totti2015.webp', 0); -- VJ 21: FIFA 17, AS Roma (última)
 
 -- Posiciones Totti: ST principal (FIFA 15-16), CF principal (FIFA 17)
 INSERT INTO VersionJugadorPosicion (IdVersionJugador, IdPosicion, EsPrincipal) VALUES
@@ -932,13 +927,13 @@ UPDATE VersionJugador SET Calificacion = 68 WHERE Id = 21;
 -- Barcelona como CDM (FIFA 15-17) → CB (FIFA 18)
 -- AS Roma (FIFA 19-20) hasta su retiro
 -- ============================================================
-INSERT INTO VersionJugador (IdJugador, IdVersion, IdClub, ImagenUrl, Calificacion) VALUES
-(4, 1, 1,  'https://cdn.sofifa.net/players/158108/15/180_60.png', 0), -- VJ 22: FIFA 15, Barcelona
-(4, 2, 1,  'https://cdn.sofifa.net/players/158108/16/180_60.png', 0), -- VJ 23: FIFA 16, Barcelona
-(4, 3, 1,  'https://cdn.sofifa.net/players/158108/17/180_60.png', 0), -- VJ 24: FIFA 17, Barcelona
-(4, 4, 1,  'https://cdn.sofifa.net/players/158108/18/180_60.png', 0), -- VJ 25: FIFA 18, Barcelona
-(4, 5, 14, 'https://cdn.sofifa.net/players/158108/19/180_60.png', 0), -- VJ 26: FIFA 19, AS Roma
-(4, 6, 14, 'https://cdn.sofifa.net/players/158108/20/180_60.png', 0); -- VJ 27: FIFA 20, AS Roma (última)
+INSERT INTO VersionJugador (IdJugador, IdVersion, IdClub, ImagenPath, Calificacion) VALUES
+(4, 1, 1,  '/img/masche2015.webp', 0), -- VJ 22: FIFA 15, Barcelona
+(4, 2, 1,  '/img/masche2016.webp', 0), -- VJ 23: FIFA 16, Barcelona
+(4, 3, 1,  '/img/masche2017.webp', 0), -- VJ 24: FIFA 17, Barcelona
+(4, 4, 1,  '/img/masche2018.webp', 0), -- VJ 25: FIFA 18, Barcelona
+(4, 5, 14, '/img/masche2019.webp', 0), -- VJ 26: FIFA 19, AS Roma
+(4, 6, 14, '/img/masche2020.webp', 0); -- VJ 27: FIFA 20, AS Roma (última)
 
 -- Posiciones Mascherano: CDM+CB (FIFA 15-17) → CB+CDM (FIFA 18-20)
 INSERT INTO VersionJugadorPosicion (IdVersionJugador, IdPosicion, EsPrincipal) VALUES
@@ -971,99 +966,67 @@ UPDATE VersionJugador SET Calificacion = 63 WHERE Id = 27;
 
 -- ============================================================
 -- ALEXIA PUTELLAS (IdJugador = 5)
--- 8 versiones: FIFA 16 al 23 (modo femenino desde FIFA 16)
+-- 4 versiones: FIFA 20 al 23
 -- FC Barcelona toda su carrera, posición CAM principal
 -- ============================================================
-INSERT INTO VersionJugador (IdJugador, IdVersion, IdClub, ImagenUrl, Calificacion) VALUES
-(5, 2, 1, 'https://cdn.sofifa.net/players/250264/16/180_60.png', 0), -- VJ 28: FIFA 16, Barcelona
-(5, 3, 1, 'https://cdn.sofifa.net/players/250264/17/180_60.png', 0), -- VJ 29: FIFA 17, Barcelona
-(5, 4, 1, 'https://cdn.sofifa.net/players/250264/18/180_60.png', 0), -- VJ 30: FIFA 18, Barcelona
-(5, 5, 1, 'https://cdn.sofifa.net/players/250264/19/180_60.png', 0), -- VJ 31: FIFA 19, Barcelona
-(5, 6, 1, 'https://cdn.sofifa.net/players/250264/20/180_60.png', 0), -- VJ 32: FIFA 20, Barcelona
-(5, 7, 1, 'https://cdn.sofifa.net/players/250264/21/180_60.png', 0), -- VJ 33: FIFA 21, Barcelona
-(5, 8, 1, 'https://cdn.sofifa.net/players/250264/22/180_60.png', 0), -- VJ 34: FIFA 22, Barcelona
-(5, 9, 1, 'https://cdn.sofifa.net/players/250264/23/180_60.png', 0); -- VJ 35: FIFA 23, Barcelona
+INSERT INTO VersionJugador (IdJugador, IdVersion, IdClub, ImagenPath, Calificacion) VALUES
+(5, 6, 1, '/img/alexia2020.webp', 0), -- VJ 28: FIFA 20, Barcelona
+(5, 7, 1, '/img/alexia2021.webp', 0), -- VJ 29: FIFA 21, Barcelona
+(5, 8, 1, '/img/alexia2022.webp', 0), -- VJ 30: FIFA 22, Barcelona
+(5, 9, 1, '/img/alexia2023.webp', 0); -- VJ 31: FIFA 23, Barcelona
 
--- Posiciones Putellas: CAM principal + CM alternativa (todas las versiones)
+-- Posiciones Putellas: CAM principal + CM alternativa
 INSERT INTO VersionJugadorPosicion (IdVersionJugador, IdPosicion, EsPrincipal) VALUES
 (28, 7, TRUE),(28, 6, FALSE),
 (29, 7, TRUE),(29, 6, FALSE),
 (30, 7, TRUE),(30, 6, FALSE),
-(31, 7, TRUE),(31, 6, FALSE),
-(32, 7, TRUE),(32, 6, FALSE),
-(33, 7, TRUE),(33, 6, FALSE),
-(34, 7, TRUE),(34, 6, FALSE),
-(35, 7, TRUE),(35, 6, FALSE);
+(31, 7, TRUE),(31, 6, FALSE);
 
--- Skills Putellas + UPDATE de Calificacion (crecimiento progresivo)
--- FIFA 16 (VJ 28) → AVG(72,65,75,80,40,60) = 65.3 → 65
-INSERT INTO VersionJugadorSkill VALUES (28,1,72),(28,2,65),(28,3,75),(28,4,80),(28,5,40),(28,6,60);
-UPDATE VersionJugador SET Calificacion = 65 WHERE Id = 28;
--- FIFA 17 (VJ 29) → AVG(74,67,77,82,41,61) = 67.0 → 67
-INSERT INTO VersionJugadorSkill VALUES (29,1,74),(29,2,67),(29,3,77),(29,4,82),(29,5,41),(29,6,61);
-UPDATE VersionJugador SET Calificacion = 67 WHERE Id = 29;
--- FIFA 18 (VJ 30) → AVG(76,70,80,84,43,63) = 69.3 → 69
-INSERT INTO VersionJugadorSkill VALUES (30,1,76),(30,2,70),(30,3,80),(30,4,84),(30,5,43),(30,6,63);
-UPDATE VersionJugador SET Calificacion = 69 WHERE Id = 30;
--- FIFA 19 (VJ 31) → AVG(78,72,82,86,44,65) = 71.2 → 71
-INSERT INTO VersionJugadorSkill VALUES (31,1,78),(31,2,72),(31,3,82),(31,4,86),(31,5,44),(31,6,65);
-UPDATE VersionJugador SET Calificacion = 71 WHERE Id = 31;
--- FIFA 20 (VJ 32) → AVG(80,74,85,88,46,67) = 73.3 → 73
-INSERT INTO VersionJugadorSkill VALUES (32,1,80),(32,2,74),(32,3,85),(32,4,88),(32,5,46),(32,6,67);
-UPDATE VersionJugador SET Calificacion = 73 WHERE Id = 32;
--- FIFA 21 (VJ 33) → AVG(83,78,88,91,48,70) = 76.3 → 76
-INSERT INTO VersionJugadorSkill VALUES (33,1,83),(33,2,78),(33,3,88),(33,4,91),(33,5,48),(33,6,70);
-UPDATE VersionJugador SET Calificacion = 76 WHERE Id = 33;
--- FIFA 22 (VJ 34) → AVG(86,82,91,93,50,72) = 79.0 → 79
-INSERT INTO VersionJugadorSkill VALUES (34,1,86),(34,2,82),(34,3,91),(34,4,93),(34,5,50),(34,6,72);
-UPDATE VersionJugador SET Calificacion = 79 WHERE Id = 34;
--- FIFA 23 (VJ 35) → AVG(87,84,92,94,52,74) = 80.5 → 81
-INSERT INTO VersionJugadorSkill VALUES (35,1,87),(35,2,84),(35,3,92),(35,4,94),(35,5,52),(35,6,74);
-UPDATE VersionJugador SET Calificacion = 81 WHERE Id = 35;
+-- Skills Putellas + UPDATE de Calificacion
+-- FIFA 20 (VJ 28) → AVG(80,74,85,88,46,67) = 73.3 → 73
+INSERT INTO VersionJugadorSkill VALUES (28,1,80),(28,2,74),(28,3,85),(28,4,88),(28,5,46),(28,6,67);
+UPDATE VersionJugador SET Calificacion = 73 WHERE Id = 28;
+-- FIFA 21 (VJ 29) → AVG(83,78,88,91,48,70) = 76.3 → 76
+INSERT INTO VersionJugadorSkill VALUES (29,1,83),(29,2,78),(29,3,88),(29,4,91),(29,5,48),(29,6,70);
+UPDATE VersionJugador SET Calificacion = 76 WHERE Id = 29;
+-- FIFA 22 (VJ 30) → AVG(86,82,91,93,50,72) = 79.0 → 79
+INSERT INTO VersionJugadorSkill VALUES (30,1,86),(30,2,82),(30,3,91),(30,4,93),(30,5,50),(30,6,72);
+UPDATE VersionJugador SET Calificacion = 79 WHERE Id = 30;
+-- FIFA 23 (VJ 31) → AVG(87,84,92,94,52,74) = 80.5 → 81
+INSERT INTO VersionJugadorSkill VALUES (31,1,87),(31,2,84),(31,3,92),(31,4,94),(31,5,52),(31,6,74);
+UPDATE VersionJugador SET Calificacion = 81 WHERE Id = 31;
 
 -- ============================================================
 -- SAM KERR (IdJugador = 6)
--- 6 versiones: FIFA 18 al 23
+-- 4 versiones: FIFA 20 al 23
 -- Chelsea toda su carrera en el juego, ST principal
 -- ============================================================
-INSERT INTO VersionJugador (IdJugador, IdVersion, IdClub, ImagenUrl, Calificacion) VALUES
-(6, 4, 7, 'https://cdn.sofifa.net/players/247949/18/180_60.png', 0), -- VJ 36: FIFA 18, Chelsea
-(6, 5, 7, 'https://cdn.sofifa.net/players/247949/19/180_60.png', 0), -- VJ 37: FIFA 19, Chelsea
-(6, 6, 7, 'https://cdn.sofifa.net/players/247949/20/180_60.png', 0), -- VJ 38: FIFA 20, Chelsea
-(6, 7, 7, 'https://cdn.sofifa.net/players/247949/21/180_60.png', 0), -- VJ 39: FIFA 21, Chelsea
-(6, 8, 7, 'https://cdn.sofifa.net/players/247949/22/180_60.png', 0), -- VJ 40: FIFA 22, Chelsea
-(6, 9, 7, 'https://cdn.sofifa.net/players/247949/23/180_60.png', 0); -- VJ 41: FIFA 23, Chelsea
+INSERT INTO VersionJugador (IdJugador, IdVersion, IdClub, ImagenPath, Calificacion) VALUES
+(6, 6, 7, '/img/kerr2020.webp', 0), -- VJ 32: FIFA 20, Chelsea
+(6, 7, 7, '/img/kerr2021.webp', 0), -- VJ 33: FIFA 21, Chelsea
+(6, 8, 7, '/img/kerr2022.webp', 0), -- VJ 34: FIFA 22, Chelsea
+(6, 9, 7, '/img/kerr2023.webp', 0); -- VJ 35: FIFA 23, Chelsea
 
--- Posiciones Sam Kerr: ST principal + CF alternativa (todas las versiones)
+-- Posiciones Sam Kerr: ST principal + CF alternativa
 INSERT INTO VersionJugadorPosicion (IdVersionJugador, IdPosicion, EsPrincipal) VALUES
-(36, 13, TRUE),(36, 12, FALSE),
-(37, 13, TRUE),(37, 12, FALSE),
-(38, 13, TRUE),(38, 12, FALSE),
-(39, 13, TRUE),(39, 12, FALSE),
-(40, 13, TRUE),(40, 12, FALSE),
-(41, 13, TRUE),(41, 12, FALSE);
+(32, 13, TRUE),(32, 12, FALSE),
+(33, 13, TRUE),(33, 12, FALSE),
+(34, 13, TRUE),(34, 12, FALSE),
+(35, 13, TRUE),(35, 12, FALSE);
 
--- Skills Sam Kerr + UPDATE de Calificacion (crecimiento progresivo)
--- FIFA 18 (VJ 36) → AVG(80,82,62,75,28,70) = 66.2 → 66
-INSERT INTO VersionJugadorSkill VALUES (36,1,80),(36,2,82),(36,3,62),(36,4,75),(36,5,28),(36,6,70);
-UPDATE VersionJugador SET Calificacion = 66 WHERE Id = 36;
--- FIFA 19 (VJ 37) → AVG(82,84,63,77,29,72) = 67.8 → 68
-INSERT INTO VersionJugadorSkill VALUES (37,1,82),(37,2,84),(37,3,63),(37,4,77),(37,5,29),(37,6,72);
-UPDATE VersionJugador SET Calificacion = 68 WHERE Id = 37;
--- FIFA 20 (VJ 38) → AVG(84,87,65,80,30,74) = 70.0 → 70
-INSERT INTO VersionJugadorSkill VALUES (38,1,84),(38,2,87),(38,3,65),(38,4,80),(38,5,30),(38,6,74);
-UPDATE VersionJugador SET Calificacion = 70 WHERE Id = 38;
--- FIFA 21 (VJ 39) → AVG(85,89,67,82,31,75) = 71.5 → 72
-INSERT INTO VersionJugadorSkill VALUES (39,1,85),(39,2,89),(39,3,67),(39,4,82),(39,5,31),(39,6,75);
-UPDATE VersionJugador SET Calificacion = 72 WHERE Id = 39;
--- FIFA 22 (VJ 40) → AVG(86,90,68,84,32,76) = 72.7 → 73
-INSERT INTO VersionJugadorSkill VALUES (40,1,86),(40,2,90),(40,3,68),(40,4,84),(40,5,32),(40,6,76);
-UPDATE VersionJugador SET Calificacion = 73 WHERE Id = 40;
--- FIFA 23 (VJ 41) → AVG(87,91,69,85,33,77) = 73.7 → 74
-INSERT INTO VersionJugadorSkill VALUES (41,1,87),(41,2,91),(41,3,69),(41,4,85),(41,5,33),(41,6,77);
-UPDATE VersionJugador SET Calificacion = 74 WHERE Id = 41;
-
--- ============================================================
+-- Skills Sam Kerr + UPDATE de Calificacion
+-- FIFA 20 (VJ 32) → AVG(84,87,65,80,30,74) = 70.0 → 70
+INSERT INTO VersionJugadorSkill VALUES (32,1,84),(32,2,87),(32,3,65),(32,4,80),(32,5,30),(32,6,74);
+UPDATE VersionJugador SET Calificacion = 70 WHERE Id = 32;
+-- FIFA 21 (VJ 33) → AVG(85,89,67,82,31,75) = 71.5 → 72
+INSERT INTO VersionJugadorSkill VALUES (33,1,85),(33,2,89),(33,3,67),(33,4,82),(33,5,31),(33,6,75);
+UPDATE VersionJugador SET Calificacion = 72 WHERE Id = 33;
+-- FIFA 22 (VJ 34) → AVG(86,90,68,84,32,76) = 72.7 → 73
+INSERT INTO VersionJugadorSkill VALUES (34,1,86),(34,2,90),(34,3,68),(34,4,84),(34,5,32),(34,6,76);
+UPDATE VersionJugador SET Calificacion = 73 WHERE Id = 34;
+-- FIFA 23 (VJ 35) → AVG(87,91,69,85,33,77) = 73.7 → 74
+INSERT INTO VersionJugadorSkill VALUES (35,1,87),(35,2,91),(35,3,69),(35,4,85),(35,5,33),(35,6,77);
+UPDATE VersionJugador SET Calificacion = 74 WHERE Id = 35;
 -- QUERIES DE EJEMPLO COMENTADAS
 -- Listas para usar directamente en el backend.
 -- Todas usan las vistas para simplificar el código.

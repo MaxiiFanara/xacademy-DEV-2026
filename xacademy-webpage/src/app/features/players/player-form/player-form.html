@@ -39,10 +39,34 @@
                   }
                 </div>
 
-                <div class="field full-width">
-                  <label>URL de imagen</label>
-                  <input pInputText formControlName="imagenUrl" placeholder="https://..." class="w-full" />
-                </div>
+                <!-- IMAGEN -->
+<div class="field full-width">
+  <label>Imagen del jugador (WebP)</label>
+  <input
+    type="file"
+    accept=".webp,image/webp"
+    (change)="onFileChange($event)"
+    class="file-input"
+  />
+
+  @if (imagePreview()) {
+    <div class="image-preview">
+      <img [src]="imagePreview()" alt="Preview" class="preview-img" />
+      <small>Nueva imagen seleccionada</small>
+    </div>
+  }
+
+  @if (!imagePreview() && imagenActual()) {
+    <div class="image-preview">
+      <img [src]="imagenActual()" alt="Imagen actual" class="preview-img" />
+      <small>Imagen actual — subí una nueva para reemplazarla</small>
+    </div>
+  }
+
+  @if (errorMessage() && errorMessage()!.includes('WebP')) {
+    <small class="error">{{ errorMessage() }}</small>
+  }
+</div>
 
                 <div class="field">
                   <label>Nacionalidad</label>

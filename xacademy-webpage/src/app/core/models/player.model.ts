@@ -24,15 +24,23 @@ export interface PaginatedPlayers {
   perPage: number;
   data: Player[];
 }
+
+
 export interface PlayerDetailData {
   juego: string;
   nombre: string;
   apellido: string;
+  idNacionalidad: number;
   nacionalidad: string;
+  idClub: number;
   club: string;
+  idLiga: number;
+  imagenUrl: string;
   calificacion: number;
   labels: string[];
   skillsData: number[];
+  skills: { idSkill: number; valor: number; nombre: string }[];
+  posiciones: { idPosicion: number; esPrincipal: boolean }[];
 }
 
 export interface PlayerCreateDto {

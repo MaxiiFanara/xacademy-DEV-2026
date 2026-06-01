@@ -73,18 +73,22 @@ exportPlayers(filters: PlayerFilters = {}) {
 }
 
   // Crear jugador
-  createPlayer(dto: PlayerCreateDto) {
-    return this.http.post<PlayerDetailData>(this.API, dto, {
-      withCredentials: true
-    });
-  }
+ createPlayer(formData: FormData) {
+  return this.http.post<any>(this.API, formData, {
+    withCredentials: true
+  });
+}
+importCsv(formData: FormData) {
+  return this.http.post<any>(`${this.API}/import`, formData, {
+    withCredentials: true
+  });
+}
 
-  // Editar jugador — id es el ID de VersionJugador
-  updatePlayer(id: number, dto: PlayerUpdateDto) {
-    return this.http.put<PlayerDetailData>(`${this.API}/${id}`, dto, {
-      withCredentials: true
-    });
-  }
+updatePlayer(id: number, formData: FormData) {
+  return this.http.put<any>(`${this.API}/${id}`, formData, {
+    withCredentials: true
+  });
+}
 
   // Evolución de una skill a lo largo del tiempo
   // idJugador es el ID de la tabla Jugador (no VersionJugador)

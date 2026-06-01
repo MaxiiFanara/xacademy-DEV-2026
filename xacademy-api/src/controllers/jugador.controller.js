@@ -85,7 +85,20 @@ exportAll = async (req, res) => {
 
 create = async (req, res) => {
   try {
-    const result = await this.service.crearJugador(req.body, req.user);  // ← pasamos req.user
+    // Si se subió una imagen, agregar la ruta al body
+    if (req.file) {
+      req.body.imagenPath = `/img/${req.file.filename}`;
+    }
+
+    // El body viene como multipart/form-data, los arrays vienen como strings
+    if (req.body.posiciones && typeof req.body.posiciones === 'string') {
+      req.body.posiciones = JSON.parse(req.body.posiciones);
+    }
+    if (req.body.skills && typeof req.body.skills === 'string') {
+      req.body.skills = JSON.parse(req.body.skills);
+    }
+
+    const result = await this.service.crearJugador(req.body, req.user);
     res.status(201).json(result);
   } catch (error) {
     const clientErrors = [
@@ -94,15 +107,28 @@ create = async (req, res) => {
       'valores de las skills',
       'calificación no coincide',
       'Ya existe un jugador',
+      'Solo se permiten imágenes en formato WebP',
     ];
     const esErrorCliente = clientErrors.some(msg => error.message.includes(msg));
     res.status(esErrorCliente ? 400 : 500).json({ error: error.message });
   }
 };
 
-  update = async (req, res) => {
+update = async (req, res) => {
   try {
     const { id } = req.params;
+
+    if (req.file) {
+      req.body.imagenPath = `/img/${req.file.filename}`;
+    }
+
+    if (req.body.posiciones && typeof req.body.posiciones === 'string') {
+      req.body.posiciones = JSON.parse(req.body.posiciones);
+    }
+    if (req.body.skills && typeof req.body.skills === 'string') {
+      req.body.skills = JSON.parse(req.body.skills);
+    }
+
     const result = await this.service.actualizarJugador(id, req.body);
     res.status(200).json(result);
   } catch (error) {
@@ -112,13 +138,25 @@ create = async (req, res) => {
       'posiciones repetidas',
       'valores de las skills',
       'calificación no coincide',
+      'Solo se permiten imágenes en formato WebP',
     ];
     const esErrorCliente = clientErrors.some(msg => error.message.includes(msg));
     res.status(esErrorCliente ? 400 : 500).json({ error: error.message });
   }
 };
 
-
+importCsv = async (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({ error: 'No se subió ningún archivo CSV' });
+    }
+    const csvContent = req.file.buffer.toString('utf-8');
+    const result = await this.service.importFromCsv(csvContent);
+    res.status(200).json(result);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
 
 }
 

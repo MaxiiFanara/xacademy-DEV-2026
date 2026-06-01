@@ -10,6 +10,7 @@ import { PlayerTable } from '../player-table/player-table';
 import { PlayerFilters as PlayerFiltersComponent } from '../player-filters/player-filters';
 import { LoadingSpinner } from '../../../shared/components/loading-spinner/loading-spinner';
 import { PlayerForm } from '../player-form/player-form';
+import { ImportCsv } from '../import-csv/import-csv';
 
 import { ButtonModule } from 'primeng/button';
 import { ToastModule } from 'primeng/toast';
@@ -20,7 +21,7 @@ import { MessageService } from 'primeng/api';
   selector: 'app-players-list',
   imports: [
     Navbar, Footer, PlayerTable, PlayerFiltersComponent,
-    LoadingSpinner, PlayerForm, ButtonModule, ToastModule, DialogModule
+    LoadingSpinner, PlayerForm, ImportCsv, ButtonModule, ToastModule, DialogModule
   ],
   providers: [MessageService],
   templateUrl: './players-list.html',
@@ -41,6 +42,16 @@ export class PlayersList implements OnInit {
   totalPages = signal(1);
   currentPage = signal(1);
   currentFilters = signal<PlayerFilters>({});
+  showImportDialog = signal(false);
+
+openImportDialog() {
+  this.showImportDialog.set(true);
+}
+
+onImported() {
+  this.showImportDialog.set(false);
+  this.loadPlayers(this.currentFilters(), 1);
+}
 
   ngOnInit() {
     this.loadPlayers();

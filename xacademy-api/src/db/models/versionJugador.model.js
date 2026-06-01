@@ -1,6 +1,5 @@
-// src/models/VersionJugadorModel.js
 import { DataTypes } from 'sequelize';
-import {sequelize} from '../connection.js';
+import { sequelize } from '../connection.js';
 
 const VersionJugadorModel = sequelize.define('VersionJugador', {
   Id: {
@@ -12,7 +11,7 @@ const VersionJugadorModel = sequelize.define('VersionJugador', {
   IdJugador: {
     type: DataTypes.INTEGER,
     allowNull: false,
-    unique: 'uq_versionjugador_jugador_version', // Define la clave única compuesta junto con IdVersion
+    unique: 'uq_versionjugador_jugador_version',
     references: {
       model: 'Jugador',
       key: 'Id'
@@ -21,7 +20,7 @@ const VersionJugadorModel = sequelize.define('VersionJugador', {
   IdVersion: {
     type: DataTypes.INTEGER,
     allowNull: false,
-    unique: 'uq_versionjugador_jugador_version', // Define la clave única compuesta junto con IdJugador
+    unique: 'uq_versionjugador_jugador_version',
     references: {
       model: 'Version',
       key: 'Id'
@@ -35,23 +34,22 @@ const VersionJugadorModel = sequelize.define('VersionJugador', {
       key: 'Id'
     }
   },
-  ImagenUrl: {
+  ImagenPath: {
     type: DataTypes.STRING(500),
-    allowNull: true // Mapea VARCHAR(500) NULL para las fotos cambiantes por edición
+    allowNull: true
   },
   Calificacion: {
     type: DataTypes.INTEGER,
     allowNull: false,
     defaultValue: 0,
     validate: {
-      min: 0,
-      max: 99 // Mapea el CONSTRAINT chk_versionjugador_calificacion CHECK (BETWEEN 0 AND 99)
+      min: 1,
+      max: 99
     }
   }
 }, {
-  // Configuración para que coincida exactamente con la base de datos
-  tableName: 'VersionJugador', 
-  timestamps: false      
+  tableName: 'VersionJugador',
+  timestamps: false
 });
 
 export default VersionJugadorModel;

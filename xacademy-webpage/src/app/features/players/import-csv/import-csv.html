@@ -1,0 +1,63 @@
+<div class="import-wrapper">
+  <h3 class="import-title">Importar jugadores desde CSV</h3>
+
+  <div class="import-format">
+    <p>El archivo CSV debe tener el siguiente formato:</p>
+    <code>nombre,apellido,fechaNacimiento,esHombre,nacionalidad,version,club,calificacion,posicionPrincipal,PAC,SHO,PAS,DRI,DEF,PHY</code>
+  </div>
+
+  <div class="field">
+    <input
+      type="file"
+      accept=".csv"
+      (change)="onFileChange($event)"
+      class="file-input"
+    />
+  </div>
+
+  @if (selectedFile()) {
+    <p class="file-selected">
+      <i class="pi pi-file"></i>
+      {{ selectedFile()!.name }}
+    </p>
+  }
+
+  @if (errorMessage()) {
+    <p-message severity="error" [text]="errorMessage()!" />
+  }
+
+  <p-button
+    label="Importar"
+    icon="pi pi-upload"
+    [loading]="loading()"
+    [disabled]="!selectedFile() || loading()"
+    (onClick)="onImport()"
+  />
+
+  @if (result()) {
+    <div class="result-summary">
+      <p-tag [value]="'Total: ' + result().total" severity="info" />
+      <p-tag [value]="'Procesados: ' + result().procesados" severity="success" />
+      <p-tag [value]="'Errores: ' + result().errores" [severity]="result().errores > 0 ? 'danger' : 'success'" />
+    </div>
+
+    @if (result().errores > 0) {
+<p-table [value]="errores" styleClass="p-datatable-sm">
+            <ng-template #header>
+          <tr>
+            <th>Nombre</th>
+            <th>Apellido</th>
+            <th>Error</th>
+          </tr>
+        </ng-template>
+        <ng-template #body let-item>
+          <tr>
+            <td>{{ item.nombre }}</td>
+            <td>{{ item.apellido }}</td>
+            <td>{{ item.mensaje }}</td>
+          </tr>
+        </ng-template>
+      </p-table>
+    }
+  }
+</div>

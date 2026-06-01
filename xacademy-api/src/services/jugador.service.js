@@ -42,31 +42,44 @@ async getIdJugador(idVersionJugador) {
   if (!versionJugador) throw new Error('Version de jugador no encontrada');
   return { IdJugador: versionJugador.IdJugador };
 }
-  async getDetailById(id) {
-    const rows = await this.repository.findDetailById(id);
 
-    if (!rows || rows.length === 0) {
-      throw new Error('Jugador no encontrado');
-    }
+async getDetailById(id) {
+  const [rows, posiciones] = await Promise.all([
+    this.repository.findDetailById(id),
+    this.repository.findPosicionesByVersionJugador(id)
+  ]);
 
-    // Todas las filas tienen los mismos datos base, tomamos la primera
-    const base = rows[0];
+  if (!rows || rows.length === 0) throw new Error('Jugador no encontrado');
 
-    // Agrupamos las skills en labels y skillsData para Chart.js
-    const labels     = rows.map(r => r.Skill);
-    const skillsData = rows.map(r => r.ValorSkill);
+  const base = rows[0];
+  const labels = rows.map(r => r.Skill);
+  const skillsData = rows.map(r => r.ValorSkill);
+  const skills = rows.map(r => ({
+    idSkill: r.IdSkill,
+    valor: r.ValorSkill,
+    nombre: r.Skill,
+  }));
 
-    return {
-      juego:            base.Juego,
-      nombre:           base.Nombre,
-      apellido:         base.Apellido,
-      nacionalidad:     base.Nacionalidad,
-      club:             base.Club,
-      calificacion:     base.Calificacion,
-      labels,
-      skillsData,
-    };
-  }
+  return {
+    juego:          base.Juego,
+    nombre:         base.Nombre,
+    apellido:       base.Apellido,
+    idNacionalidad: base.IdNacionalidad,
+    nacionalidad:   base.Nacionalidad,
+    idClub:         base.IdClub,
+    club:           base.Club,
+    idLiga:         base.IdLiga,
+    imagenUrl:      base.ImagenUrl,
+    calificacion:   base.Calificacion,
+    labels,
+    skillsData,
+    skills,
+    posiciones: posiciones.map(p => ({
+      idPosicion:  p.IdPosicion,
+      esPrincipal: p.EsPrincipal
+    }))
+  };
+}
 
 
 
@@ -91,126 +104,128 @@ async getIdJugador(idVersionJugador) {
   }
 
 
-  async crearJugador(body, usuarioActivo) {
-    const {
-      nombre, apellido, fechaNacimiento, esHombre,
-      idNacionalidad,
-      idVersion, idClub, imagenUrl,
-      posiciones, skills, calificacion,
-    } = body;
+ async crearJugador(body, usuarioActivo) {
+  const {
+    nombre, apellido, fechaNacimiento, esHombre,
+    idNacionalidad, idVersion, idClub, imagenPath,
+    posiciones, skills, calificacion,
+  } = body;
 
-    // 1. Validar que haya exactamente una posición principal
-    const principales = posiciones.filter(p => p.esPrincipal);
-    if (principales.length !== 1) {
-      throw new Error('Debe haber exactamente una posición principal');
-    }
+  const principales = posiciones.filter(p => p.esPrincipal);
+  if (principales.length !== 1) throw new Error('Debe haber exactamente una posición principal');
 
-    // 2. Validar que no haya posiciones repetidas
-    const idsPosicion = posiciones.map(p => p.idPosicion);
-    if (new Set(idsPosicion).size !== idsPosicion.length) {
-      throw new Error('No puede haber posiciones repetidas');
-    }
+  const idsPosicion = posiciones.map(p => p.idPosicion);
+  if (new Set(idsPosicion).size !== idsPosicion.length) throw new Error('No puede haber posiciones repetidas');
 
-    // 3. Validar skills entre 0 y 99
-    const skillsInvalidas = skills.filter(s => s.valor < 0 || s.valor > 99);
-    if (skillsInvalidas.length > 0) {
-      throw new Error('Los valores de las skills deben estar entre 0 y 99');
-    }
+  const skillsInvalidas = skills.filter(s => s.valor < 0 || s.valor > 99);
+  if (skillsInvalidas.length > 0) throw new Error('Los valores de las skills deben estar entre 0 y 99');
 
-    // 4. Verificar y revalidar calificación
-    const calificacionCalculada = Math.round(
-      skills.reduce((sum, s) => sum + s.valor, 0) / skills.length
-    );
-    if (calificacionCalculada !== calificacion) {
-      throw new Error('La calificación no coincide con el promedio de las skills');
-    }
+  const calificacionCalculada = Math.round(
+    skills.reduce((sum, s) => sum + s.valor, 0) / skills.length
+  );
+  if (calificacionCalculada !== parseInt(calificacion)) throw new Error('La calificación no coincide con el promedio de las skills');
 
-    // 5. Verificar duplicado
-    const duplicado = await this.repository.existeDuplicado(nombre, apellido, fechaNacimiento);
-    if (duplicado) {
-      throw new Error('Ya existe un jugador con ese nombre, apellido y fecha de nacimiento');
-    }
+  const duplicado = await this.repository.existeDuplicado(nombre, apellido, fechaNacimiento);
+  if (duplicado) throw new Error('Ya existe un jugador con ese nombre, apellido y fecha de nacimiento');
 
-    // 6. Ejecutar transacción
- return await this.repository.crearCompleto({
+  return await this.repository.crearCompleto({
     jugador: {
       Nombre:           nombre,
       Apellido:         apellido,
       FechaNacimiento:  fechaNacimiento || null,
-      EsHombre:         esHombre,
+      EsHombre:         esHombre === 'true' || esHombre === true,
       EsRetirado:       false,
       AnioRetiro:       null,
       EsDelJuegoBase:   false,
       EsActivo:         true,
       IdNacionalidad:   idNacionalidad,
-      IdUsuarioCreador: usuarioActivo.Id,  // ← viene del JWT, no del body
+      IdUsuarioCreador: usuarioActivo.Id,
     },
     versionJugador: {
       IdVersion:    idVersion,
       IdClub:       idClub,
-      ImagenUrl:    imagenUrl || null,
-      Calificacion: calificacionCalculada,
-    },
-    posiciones,
-    skills,
-  });
-  }
-
-async actualizarJugador(idVersionJugador, body) {
-  const {
-    nombre, apellido, idNacionalidad,
-    idClub, imagenUrl,
-    posiciones, skills, calificacion,
-    idJugador,
-  } = body;
-
-  // 1. Verificar que existe
-const versionExiste = await this.repository.findVersionJugadorById(idVersionJugador);
-  if (!versionExiste) throw new Error('Jugador no encontrado');
-
-  // 2. Validar exactamente una posición principal
-  const principales = posiciones.filter(p => p.esPrincipal);
-  if (principales.length !== 1) {
-    throw new Error('Debe haber exactamente una posición principal');
-  }
-
-  // 3. Validar posiciones sin repetir
-  const idsPosicion = posiciones.map(p => p.idPosicion);
-  if (new Set(idsPosicion).size !== idsPosicion.length) {
-    throw new Error('No puede haber posiciones repetidas');
-  }
-
-  // 4. Validar skills entre 0 y 99
-  const skillsInvalidas = skills.filter(s => s.valor < 0 || s.valor > 99);
-  if (skillsInvalidas.length > 0) {
-    throw new Error('Los valores de las skills deben estar entre 0 y 99');
-  }
-
-  // 5. Revalidar calificación
-  const calificacionCalculada = Math.round(
-    skills.reduce((sum, s) => sum + s.valor, 0) / skills.length
-  );
-  if (calificacionCalculada !== calificacion) {
-    throw new Error('La calificación no coincide con el promedio de las skills');
-  }
-
-  return await this.repository.actualizarCompleto({
-    idVersionJugador,
-    idJugador,
-    jugador: {
-      Nombre:        nombre,
-      Apellido:      apellido,
-      IdNacionalidad: idNacionalidad,
-    },
-    versionJugador: {
-      IdClub:       idClub,
-      ImagenUrl:    imagenUrl || null,
+      ImagenPath:   imagenPath || null,
       Calificacion: calificacionCalculada,
     },
     posiciones,
     skills,
   });
 }
+
+async actualizarJugador(idVersionJugador, body) {
+  const {
+    nombre, apellido, idNacionalidad,
+    idClub, imagenPath,
+    posiciones, skills, calificacion,
+  } = body;
+
+  const versionExiste = await this.repository.findVersionJugadorById(idVersionJugador);
+  if (!versionExiste) throw new Error('Jugador no encontrado');
+
+  const principales = posiciones.filter(p => p.esPrincipal);
+  if (principales.length !== 1) throw new Error('Debe haber exactamente una posición principal');
+
+  const idsPosicion = posiciones.map(p => p.idPosicion);
+  if (new Set(idsPosicion).size !== idsPosicion.length) throw new Error('No puede haber posiciones repetidas');
+
+  const skillsInvalidas = skills.filter(s => s.valor < 0 || s.valor > 99);
+  if (skillsInvalidas.length > 0) throw new Error('Los valores de las skills deben estar entre 0 y 99');
+
+  const calificacionCalculada = Math.round(
+    skills.reduce((sum, s) => sum + s.valor, 0) / skills.length
+  );
+  if (calificacionCalculada !== parseInt(calificacion)) throw new Error('La calificación no coincide con el promedio de las skills');
+
+  // Si no se subió nueva imagen, mantener la existente
+  const imagenActual = imagenPath || versionExiste.ImagenPath || null;
+
+  return await this.repository.actualizarCompleto({
+    idVersionJugador,
+    jugador: {
+      Nombre:         nombre,
+      Apellido:       apellido,
+      IdNacionalidad: idNacionalidad,
+    },
+    versionJugador: {
+      IdClub:       idClub,
+      ImagenPath:   imagenActual,
+      Calificacion: calificacionCalculada,
+    },
+    posiciones,
+    skills,
+  });
+}
+
+async importFromCsv(csvContent) {
+  const { parse } = await import('csv-parse/sync');
+
+  const rows = parse(csvContent, {
+    columns: true,
+    skip_empty_lines: true,
+    trim: true,
+  });
+
+  const cache = await this.repository.loadCache();
+
+  let procesados = 0;
+  let errores = 0;
+  const detalles = [];
+
+  for (const row of rows) {
+    try {
+      await this.repository.importRow(row, cache);
+      procesados++;
+      detalles.push({ nombre: row.nombre, apellido: row.apellido, estado: 'ok' });
+    } catch (error) {
+      errores++;
+      detalles.push({ nombre: row.nombre, apellido: row.apellido, estado: 'error', mensaje: error.message });
+    }
+  }
+
+  return { total: rows.length, procesados, errores, detalles };
+}
+
+
 }
 
 export default JugadorService;

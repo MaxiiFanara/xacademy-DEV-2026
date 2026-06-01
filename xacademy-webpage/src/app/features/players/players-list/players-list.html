@@ -25,7 +25,13 @@
       } @placeholder {
         <app-loading-spinner />
       }
-      <div class="create-action">
+<div class="create-action">
+  <p-button
+    label="Importar CSV"
+    icon="pi pi-upload"
+    severity="secondary"
+    (onClick)="openImportDialog()"
+  />
   <p-button
     label="Descargar CSV"
     icon="pi pi-download"
@@ -33,14 +39,22 @@
     [loading]="exporting()"
     (onClick)="downloadCSV()"
   />
-  <div>
   <p-button
-          label="Crear jugador"
-          icon="pi pi-plus"
-          (onClick)="openCreateDialog()"
-        /></div>
-  
+    label="Crear jugador"
+    icon="pi pi-plus"
+    (onClick)="openCreateDialog()"
+  />
 </div>
+
+<p-dialog
+  [visible]="showImportDialog()"
+  (visibleChange)="showImportDialog.set($event)"
+  [modal]="true"
+  [style]="{ width: '600px' }"
+  [draggable]="false"
+>
+  <app-import-csv (imported)="onImported()" />
+</p-dialog>
 
       <!-- DIALOG CREAR JUGADOR -->
       <p-dialog
