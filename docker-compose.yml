@@ -23,6 +23,37 @@ services:
       start_period: 30s
     networks:
       - fifa-network
+
+  # ==========================================
+  # OLLAMA - LLM LOCAL
+  # ==========================================
+  ollama:
+    image: ollama/ollama
+    container_name: fifa-ollama
+    restart: always
+    ports:
+      - "11435:11434"
+    volumes:
+      - ollama-data:/root/.ollama
+    networks:
+      - fifa-network
+
+  # ==========================================
+  # OLLAMA MODEL PULL - descarga gemma3 al iniciar
+  # ==========================================
+  ollama-init:
+    image: ollama/ollama
+    container_name: fifa-ollama-init
+    depends_on:
+      - ollama
+    volumes:
+      - ollama-data:/root/.ollama
+    entrypoint: >
+      sh -c "sleep 15 && OLLAMA_HOST=http://ollama:11434 ollama pull gemma3"
+    networks:
+      - fifa-network
+    restart: "no"
+
   # ==========================================
   # API NODE
   # ==========================================
@@ -60,11 +91,15 @@ services:
       - MAIL_USER=${MAIL_USER}
       - MAIL_PASSWORD=${MAIL_PASSWORD}
       - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - OLLAMA_HOST=http://ollama:11434   # ← puerto interno, no 11435
     depends_on:
       db:
         condition: service_healthy
+      ollama:
+        condition: service_started
     networks:
       - fifa-network
+
   # ==========================================
   # FRONTEND ANGULAR
   # ==========================================
@@ -80,14 +115,17 @@ services:
       - api
     networks:
       - fifa-network
-  # ==========================================
-  # REDES
-  # ==========================================
+
+# ==========================================
+# REDES
+# ==========================================
 networks:
   fifa-network:
     driver: bridge
-  # ==========================================
-  # VOLUMENES
-  # ==========================================
+
+# ==========================================
+# VOLUMENES
+# ==========================================
 volumes:
   fifa-db-data:
+  ollama-data:

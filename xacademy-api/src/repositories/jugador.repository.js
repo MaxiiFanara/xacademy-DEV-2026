@@ -89,6 +89,13 @@ async findVersionJugadorById(idVersionJugador) {
     return rows;  // devuelve las N filas crudas, el service las agrupa
   }
 
+  async getTrayectoria(idJugador) {
+  return await VwEvolucionSkillJugador.findAll({
+    where: { IdJugador: idJugador },
+    order: [['AnioJuego', 'ASC'], ['Skill', 'ASC']],
+  });
+}
+
    async findEvolucionSkill(idJugador, idSkill) {
     const rows = await VwEvolucionSkillJugador.findAll({
       where: { IdJugador: idJugador, IdSkill: idSkill },

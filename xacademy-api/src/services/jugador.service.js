@@ -151,7 +151,9 @@ async getDetailById(id) {
     skills,
   });
 }
-
+async getTrayectoria(idJugador) {
+  return await this.repository.getTrayectoria(idJugador);
+}
 async actualizarJugador(idVersionJugador, body) {
   const {
     nombre, apellido, idNacionalidad,
