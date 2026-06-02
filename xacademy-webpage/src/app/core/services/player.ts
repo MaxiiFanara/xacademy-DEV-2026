@@ -72,6 +72,12 @@ exportPlayers(filters: PlayerFilters = {}) {
   });
 }
 
+getPlayerAnalysis(idVersionJugador: number) {
+  return this.http.get<{ analisis: string }>(`/api/ia/jugador/${idVersionJugador}/analisis`, {
+    withCredentials: true
+  });
+}
+
   // Crear jugador
  createPlayer(formData: FormData) {
   return this.http.post<any>(this.API, formData, {

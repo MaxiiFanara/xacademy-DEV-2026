@@ -32,7 +32,7 @@
           }
         </div>
 
-        <!-- BOTON VER EVOLUCION -->
+        <!-- BOTONES -->
         <div class="timeline-action">
           <p-button
             [label]="showTimeline() ? 'Ocultar evolución' : 'Ver evolución de habilidades'"
@@ -40,17 +40,43 @@
             severity="info"
             (onClick)="toggleTimeline()"
           />
+          <p-button
+            label="Analizar trayectoria con IA"
+            icon="pi pi-sparkles"
+            severity="secondary"
+            [loading]="loadingAnalysis()"
+            (onClick)="toggleAnalysis()"
+          />
         </div>
 
         <!-- TIMELINE -->
         @if (showTimeline()) {
-  <div class="section">
-    <app-skill-timeline
-      [idJugador]="playerId()"
-      [skills]="availableSkills()"
-    />
-  </div>
-}
+          <div class="section">
+            <app-skill-timeline
+              [idJugador]="playerId()"
+              [skills]="availableSkills()"
+            />
+          </div>
+        }
+
+        <!-- ANÁLISIS IA -->
+        @if (showAnalysis()) {
+          <div class="analysis-section">
+            @if (loadingAnalysis()) {
+              <div class="analysis-loading">
+                <app-loading-spinner />
+                <p class="analysis-wait">Analizando trayectoria... esto puede tardar alrededor de 2 minutos.</p>
+              </div>
+            }
+            @if (!loadingAnalysis() && analysis()) {
+              <div class="analysis-content">
+                <h3 class="section-title">Análisis de trayectoria</h3>
+                <p class="analysis-text">{{ analysis() }}</p>
+              </div>
+            }
+          </div>
+        }
+
       }
 
       @if (!loading() && !player()) {

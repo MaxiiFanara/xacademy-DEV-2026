@@ -43,6 +43,9 @@ player = signal<PlayerDetailData | null>(null);  selectedSkill = signal<Skill | 
   loading = signal(true);
   playerId = signal<number>(0);
   availableSkills = signal<Skill[]>([]);
+  showAnalysis = signal(false);
+analysis = signal<string | null>(null);
+loadingAnalysis = signal(false);
 
 ngOnInit() {
   const id = Number(this.route.snapshot.paramMap.get('id'));
@@ -52,6 +55,28 @@ ngOnInit() {
   // Obtener el IdJugador real para la timeline
   this.playerService.getIdJugador(id).subscribe({
     next: (res) => this.playerId.set(res.IdJugador)
+  });
+}
+
+toggleAnalysis() {
+  if (this.analysis()) {
+    this.showAnalysis.set(!this.showAnalysis());
+    return;
+  }
+
+  this.loadingAnalysis.set(true);
+  this.showAnalysis.set(true);
+
+  const id = Number(this.route.snapshot.paramMap.get('id'));
+  this.playerService.getPlayerAnalysis(id).subscribe({
+    next: (res) => {
+      this.analysis.set(res.analisis);
+      this.loadingAnalysis.set(false);
+    },
+    error: () => {
+      this.analysis.set('No se pudo obtener el análisis.');
+      this.loadingAnalysis.set(false);
+    }
   });
 }
   loadPlayer(id: number) {
