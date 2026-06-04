@@ -1,4 +1,4 @@
-import { Component, input, output } from '@angular/core';
+import { Component, computed, input, output } from '@angular/core';
 import { Player } from '../../../core/models/player.model';
 
 // PrimeNG
@@ -31,7 +31,7 @@ export class PlayerTable {
     this.pageChange.emit(page);
   }
 
-  getPages(): number[] {
-    return Array.from({ length: this.totalPages() }, (_, i) => i + 1);
-  }
+  pages = computed(() =>
+    Array.from({ length: this.totalPages() }, (_, i) => i + 1)
+  );
 }

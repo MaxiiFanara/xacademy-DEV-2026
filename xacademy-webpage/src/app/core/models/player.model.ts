@@ -27,6 +27,7 @@ export interface PaginatedPlayers {
 
 
 export interface PlayerDetailData {
+  idJugador: number;
   juego: string;
   nombre: string;
   apellido: string;
@@ -68,4 +69,11 @@ export interface PlayerUpdateDto {
   calificacion: number;
   posiciones: PlayerPosition[];
   skills: PlayerSkill[];
+}
+
+export interface PlayerFilters {
+  esHombre?: boolean;
+  versionId?: number;
+  creadoPorMi?: boolean;
+  page?: number;
 }

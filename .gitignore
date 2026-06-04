@@ -13,6 +13,8 @@ xacademy-webpage/.env
 
 # ── Logs generados en runtime ────────────────────────────────
 xacademy-api/logs/*.log
+# Logs de aplicación
+xacademy-api/logs/logs.errors*
 
 # ── Build de Angular ─────────────────────────────────────────
 xacademy-webpage/dist/

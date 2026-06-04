@@ -1,4 +1,5 @@
 import BaseController from '../core/base.controller.js';
+import logger from '../config/winston.js';
 
 class ClubController extends BaseController {
   constructor(clubService) {   // ← recibe el servicio inyectado
@@ -11,6 +12,7 @@ class ClubController extends BaseController {
       const result = await this.service.getByLiga(ligaId);
       res.status(200).json(result);
     } catch (error) {
+      logger.error(error);
       res.status(500).json({ error: error.message });
     }
   };
@@ -21,6 +23,7 @@ class ClubController extends BaseController {
       const result = await this.service.getByLiga(ligaId);
       res.status(200).json(result);
     } catch (error) {
+      logger.error(error);
       res.status(500).json({ error: error.message });
     }
 }

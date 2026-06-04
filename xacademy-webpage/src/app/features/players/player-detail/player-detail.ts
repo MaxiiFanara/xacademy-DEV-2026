@@ -1,4 +1,5 @@
-import { Component, inject, signal, OnInit } from '@angular/core';
+import { Component, inject, signal, OnInit, DestroyRef } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router } from '@angular/router';
 import { PlayerService } from '../../../core/services/player';
 import { SkillService } from '../../../core/services/skill';
@@ -33,6 +34,7 @@ import { SelectModule } from 'primeng/select';
 })
 export class PlayerDetail implements OnInit {
 
+  private destroyRef = inject(DestroyRef);
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   private playerService = inject(PlayerService);
@@ -41,21 +43,15 @@ export class PlayerDetail implements OnInit {
 player = signal<PlayerDetailData | null>(null);  selectedSkill = signal<Skill | null>(null);
   showTimeline = signal(false);
   loading = signal(true);
-  playerId = signal<number>(0);
   availableSkills = signal<Skill[]>([]);
   showAnalysis = signal(false);
-analysis = signal<string | null>(null);
-loadingAnalysis = signal(false);
+  analysis = signal<string | null>(null);
+  loadingAnalysis = signal(false);
 
 ngOnInit() {
   const id = Number(this.route.snapshot.paramMap.get('id'));
   this.loadPlayer(id);
   this.loadSkills();
-
-  // Obtener el IdJugador real para la timeline
-  this.playerService.getIdJugador(id).subscribe({
-    next: (res) => this.playerId.set(res.IdJugador)
-  });
 }
 
 toggleAnalysis() {
@@ -68,7 +64,9 @@ toggleAnalysis() {
   this.showAnalysis.set(true);
 
   const id = Number(this.route.snapshot.paramMap.get('id'));
-  this.playerService.getPlayerAnalysis(id).subscribe({
+  this.playerService.getPlayerAnalysis(id)
+    .pipe(takeUntilDestroyed(this.destroyRef))
+    .subscribe({
     next: (res) => {
       this.analysis.set(res.analisis);
       this.loadingAnalysis.set(false);
@@ -79,8 +77,11 @@ toggleAnalysis() {
     }
   });
 }
+
   loadPlayer(id: number) {
-    this.playerService.getPlayerById(id).subscribe({
+    this.playerService.getPlayerById(id)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
       next: (player) => {
         this.player.set(player);
         this.loading.set(false);
@@ -90,7 +91,9 @@ toggleAnalysis() {
   }
 
   loadSkills() {
-    this.skillService.getSkills().subscribe({
+    this.skillService.getSkills()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
      next: (skills) => this.availableSkills.set(skills)
     });
   }

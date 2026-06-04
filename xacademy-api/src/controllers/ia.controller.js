@@ -7,7 +7,8 @@ class IAController {
   analyzePlayer = async (req, res) => {
     try {
       const { id } = req.params;
-      const trayectoria = await this.jugadorService.getTrayectoria(id);
+      const { IdJugador } = await this.jugadorService.getIdJugador(id);
+      const trayectoria = await this.jugadorService.getTrajectory(IdJugador);
       if (!trayectoria || trayectoria.length === 0) {
         return res.status(404).json({ error: 'No se encontró trayectoria para este jugador' });
       }

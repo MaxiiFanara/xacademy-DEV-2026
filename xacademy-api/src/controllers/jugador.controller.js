@@ -1,4 +1,5 @@
 import BaseController from '../core/base.controller.js';
+import logger from '../config/winston.js';
 
 class JugadorController extends BaseController {
   constructor(jugadorService) {
@@ -21,11 +22,12 @@ getAll = async (req, res) => {
       versionId,
       esHombre,
       creadoPorMi,
-      usuarioEmail: req.user.Email,
+      usuario: req.user,
     });
 
     res.status(200).json(result);
   } catch (error) {
+    logger.error(error);
     res.status(500).json({ error: error.message });
   }
 };
@@ -36,6 +38,7 @@ getAll = async (req, res) => {
       const result = await this.service.getDetailById(id);
       res.status(200).json(result);
     } catch (error) {
+      logger.error(error);
       if (error.message === 'Jugador no encontrado') {
         return res.status(404).json({ error: error.message });
       }
@@ -50,10 +53,11 @@ exportAll = async (req, res) => {
       versionId,
       esHombre,
       creadoPorMi,
-      usuarioEmail: req.user.Email
+      usuario: req.user
     });
     res.status(200).json(data);
   } catch (error) {
+    logger.error(error);
     res.status(500).json({ error: error.message });
   }
 };
@@ -64,6 +68,7 @@ exportAll = async (req, res) => {
     const result = await this.service.getIdJugador(id);
     res.status(200).json(result);
   } catch (error) {
+    logger.error(error);
     res.status(404).json({ error: error.message });
   }
 };
@@ -76,6 +81,7 @@ exportAll = async (req, res) => {
       const result = await this.service.getEvolucionSkill(id, skillId);
       res.status(200).json(result);
     } catch (error) {
+      logger.error(error);
       if (error.message.includes('requerido') || error.message.includes('No se encontró')) {
         return res.status(404).json({ error: error.message });
       }
@@ -90,17 +96,10 @@ create = async (req, res) => {
       req.body.imagenPath = `/img/${req.file.filename}`;
     }
 
-    // El body viene como multipart/form-data, los arrays vienen como strings
-    if (req.body.posiciones && typeof req.body.posiciones === 'string') {
-      req.body.posiciones = JSON.parse(req.body.posiciones);
-    }
-    if (req.body.skills && typeof req.body.skills === 'string') {
-      req.body.skills = JSON.parse(req.body.skills);
-    }
-
-    const result = await this.service.crearJugador(req.body, req.user);
+    const result = await this.service.create(req.body, req.user);
     res.status(201).json(result);
   } catch (error) {
+    logger.error(error);
     const clientErrors = [
       'exactamente una posición principal',
       'posiciones repetidas',
@@ -122,16 +121,10 @@ update = async (req, res) => {
       req.body.imagenPath = `/img/${req.file.filename}`;
     }
 
-    if (req.body.posiciones && typeof req.body.posiciones === 'string') {
-      req.body.posiciones = JSON.parse(req.body.posiciones);
-    }
-    if (req.body.skills && typeof req.body.skills === 'string') {
-      req.body.skills = JSON.parse(req.body.skills);
-    }
-
-    const result = await this.service.actualizarJugador(id, req.body);
+    const result = await this.service.update(id, req.body);
     res.status(200).json(result);
   } catch (error) {
+    logger.error(error);
     const clientErrors = [
       'no encontrado',
       'exactamente una posición principal',
@@ -154,6 +147,7 @@ importCsv = async (req, res) => {
     const result = await this.service.importFromCsv(csvContent);
     res.status(200).json(result);
   } catch (error) {
+    logger.error(error);
     res.status(500).json({ error: error.message });
   }
 };

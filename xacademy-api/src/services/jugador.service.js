@@ -1,15 +1,11 @@
 import BaseService from '../core/base.service.js';
 
 class JugadorService extends BaseService {
-constructor(jugadorRepository, authRepository) {
+constructor(jugadorRepository) {
     super(jugadorRepository);
-    this.authRepository = authRepository;
   }
 
-async getAll({ page, limit, versionId, esHombre, creadoPorMi, usuarioEmail } = {}) {
-  const usuario = await this.authRepository.findByField('Email', usuarioEmail);
-  if (!usuario) throw new Error('Usuario no encontrado');
-
+async getAll({ page, limit, versionId, esHombre, creadoPorMi, usuario } = {}) {
   let idUsuarioCreador;
   if (creadoPorMi === 'true' || creadoPorMi === true) {
     idUsuarioCreador = usuario.Id;
@@ -22,10 +18,7 @@ async getAll({ page, limit, versionId, esHombre, creadoPorMi, usuarioEmail } = {
   });
 }
 
-async exportAll({ versionId, esHombre, creadoPorMi, usuarioEmail } = {}) {
-  const usuario = await this.authRepository.findByField('Email', usuarioEmail);
-  if (!usuario) throw new Error('Usuario no encontrado');
-
+async exportAll({ versionId, esHombre, creadoPorMi, usuario } = {}) {
   let idUsuarioCreador;
   if (creadoPorMi === 'true' || creadoPorMi === true) {
     idUsuarioCreador = usuario.Id;
@@ -61,6 +54,7 @@ async getDetailById(id) {
   }));
 
   return {
+    idJugador:      base.IdJugador,
     juego:          base.Juego,
     nombre:         base.Nombre,
     apellido:       base.Apellido,
@@ -104,13 +98,7 @@ async getDetailById(id) {
   }
 
 
- async crearJugador(body, usuarioActivo) {
-  const {
-    nombre, apellido, fechaNacimiento, esHombre,
-    idNacionalidad, idVersion, idClub, imagenPath,
-    posiciones, skills, calificacion,
-  } = body;
-
+_validatePlayerData(posiciones, skills, calificacion) {
   const principales = posiciones.filter(p => p.esPrincipal);
   if (principales.length !== 1) throw new Error('Debe haber exactamente una posición principal');
 
@@ -124,6 +112,18 @@ async getDetailById(id) {
     skills.reduce((sum, s) => sum + s.valor, 0) / skills.length
   );
   if (calificacionCalculada !== parseInt(calificacion)) throw new Error('La calificación no coincide con el promedio de las skills');
+
+  return calificacionCalculada;
+}
+
+async create(body, usuarioActivo) {
+  const {
+    nombre, apellido, fechaNacimiento, esHombre,
+    idNacionalidad, idVersion, idClub, imagenPath,
+    posiciones, skills, calificacion,
+  } = body;
+
+  const calificacionCalculada = this._validatePlayerData(posiciones, skills, calificacion);
 
   const duplicado = await this.repository.existeDuplicado(nombre, apellido, fechaNacimiento);
   if (duplicado) throw new Error('Ya existe un jugador con ese nombre, apellido y fecha de nacimiento');
@@ -151,10 +151,12 @@ async getDetailById(id) {
     skills,
   });
 }
-async getTrayectoria(idJugador) {
+
+async getTrajectory(idJugador) {
   return await this.repository.getTrayectoria(idJugador);
 }
-async actualizarJugador(idVersionJugador, body) {
+
+async update(idVersionJugador, body) {
   const {
     nombre, apellido, idNacionalidad,
     idClub, imagenPath,
@@ -164,19 +166,7 @@ async actualizarJugador(idVersionJugador, body) {
   const versionExiste = await this.repository.findVersionJugadorById(idVersionJugador);
   if (!versionExiste) throw new Error('Jugador no encontrado');
 
-  const principales = posiciones.filter(p => p.esPrincipal);
-  if (principales.length !== 1) throw new Error('Debe haber exactamente una posición principal');
-
-  const idsPosicion = posiciones.map(p => p.idPosicion);
-  if (new Set(idsPosicion).size !== idsPosicion.length) throw new Error('No puede haber posiciones repetidas');
-
-  const skillsInvalidas = skills.filter(s => s.valor < 0 || s.valor > 99);
-  if (skillsInvalidas.length > 0) throw new Error('Los valores de las skills deben estar entre 0 y 99');
-
-  const calificacionCalculada = Math.round(
-    skills.reduce((sum, s) => sum + s.valor, 0) / skills.length
-  );
-  if (calificacionCalculada !== parseInt(calificacion)) throw new Error('La calificación no coincide con el promedio de las skills');
+  const calificacionCalculada = this._validatePlayerData(posiciones, skills, calificacion);
 
   // Si no se subió nueva imagen, mantener la existente
   const imagenActual = imagenPath || versionExiste.ImagenPath || null;

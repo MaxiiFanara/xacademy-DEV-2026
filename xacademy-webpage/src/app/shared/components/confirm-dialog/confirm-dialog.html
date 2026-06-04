@@ -1,1 +1,24 @@
-<p>confirm-dialog works!</p>
+<p-dialog
+  [header]="header"
+  [(visible)]="visible"
+  [modal]="true"
+  [closable]="true"
+  [style]="{ width: '26rem' }"
+  (onHide)="handleCancel()"
+>
+  <p class="confirm-message">{{ message }}</p>
+
+  <ng-template pTemplate="footer">
+    <p-button
+      [label]="cancelLabel"
+      severity="secondary"
+      [text]="true"
+      (onClick)="handleCancel()"
+    />
+    <p-button
+      [label]="confirmLabel"
+      severity="danger"
+      (onClick)="handleConfirm()"
+    />
+  </ng-template>
+</p-dialog>

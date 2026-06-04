@@ -203,7 +203,10 @@ export class PlayerForm implements OnInit {
 
             this.loading.set(false);
           },
-          error: () => this.loading.set(false)
+          error: () => {
+            this.loading.set(false);
+            this.errorMessage.set('No se pudo completar la operación.');
+          }
         });
       } else {
         this.loading.set(false);

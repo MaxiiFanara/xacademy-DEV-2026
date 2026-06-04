@@ -52,10 +52,14 @@
         <!-- TIMELINE -->
         @if (showTimeline()) {
           <div class="section">
-            <app-skill-timeline
-              [idJugador]="playerId()"
-              [skills]="availableSkills()"
-            />
+            @defer (on idle) {
+              <app-skill-timeline
+                [idJugador]="p.idJugador"
+                [skills]="availableSkills()"
+              />
+            } @placeholder {
+              <app-loading-spinner />
+            }
           </div>
         }
 
@@ -65,10 +69,10 @@
             @if (loadingAnalysis()) {
               <div class="analysis-loading">
                 <app-loading-spinner />
-                <p class="analysis-wait">Analizando trayectoria... esto puede tardar alrededor de 2 minutos.</p>
+                <p class="analysis-wait">Analizando trayectoria...</p>
               </div>
             }
-            @if (!loadingAnalysis() && analysis()) {
+            @if (analysis()) {
               <div class="analysis-content">
                 <h3 class="section-title">Análisis de trayectoria</h3>
                 <p class="analysis-text">{{ analysis() }}</p>

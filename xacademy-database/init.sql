@@ -49,6 +49,9 @@
 --     con TIMESTAMPDIFF para evitar datos desactualizados.
 -- ============================================================
 
+SET NAMES utf8mb4;
+SET character_set_client = utf8mb4;
+
 DROP DATABASE IF EXISTS fifa_db;
 CREATE DATABASE fifa_db
     CHARACTER SET utf8mb4

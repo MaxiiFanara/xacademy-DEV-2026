@@ -48,3 +48,14 @@ export const uploadCsv = multer({
   },
   limits: { fileSize: 10 * 1024 * 1024 } // 10MB máximo
 });
+
+// Parsea los campos posiciones y skills que vienen como strings JSON en multipart/form-data
+export const parseMultipartBody = (req, res, next) => {
+  if (req.body.posiciones && typeof req.body.posiciones === 'string') {
+    req.body.posiciones = JSON.parse(req.body.posiciones);
+  }
+  if (req.body.skills && typeof req.body.skills === 'string') {
+    req.body.skills = JSON.parse(req.body.skills);
+  }
+  next();
+};

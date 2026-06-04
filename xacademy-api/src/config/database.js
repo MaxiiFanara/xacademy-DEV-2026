@@ -37,6 +37,12 @@ export const sequelizeConfig = {
         underscored: false
     },
 
+    // ── Encoding ─────────────────────────────────────────────
+    charset: 'utf8mb4',
+    dialectOptions: {
+        charset: 'utf8mb4',
+    },
+
     // ── Sincronización ───────────────────────────────────────
     // false: Sequelize NO altera ni crea tablas automáticamente.
     // Nuestro schema ya está definido en fifa_database.sql.

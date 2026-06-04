@@ -1,0 +1,263 @@
+paths:
+  /api/auth/register:
+    post:
+      summary: Registra un nuevo usuario
+      description: >
+        Crea una nueva cuenta de usuario en el sistema. El email debe ser único.
+        La contraseña se almacena hasheada con bcrypt.
+      tags:
+        - Auth
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/requestBodies/RegisterDto"
+      responses:
+        "201":
+          description: Usuario registrado correctamente
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: success
+                  payload:
+                    $ref: "#/components/schemas/UsuarioResponse"
+        "400":
+          description: Validación fallida o email ya registrado
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              examples:
+                camposFaltantes:
+                  summary: Campos incompletos
+                  value:
+                    error: Todos los campos son obligatorios
+                emailDuplicado:
+                  summary: Email ya registrado
+                  value:
+                    error: El email ya se encuentra registrado
+        "500":
+          description: Error interno del servidor
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /api/auth/login:
+    post:
+      summary: Inicia sesión con email y contraseña
+      description: >
+        Autentica al usuario con sus credenciales. En caso de éxito devuelve
+        los datos del usuario y setea las cookies de sesión (access_token, refresh_token).
+      tags:
+        - Auth
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/requestBodies/LoginDto"
+      responses:
+        "200":
+          description: Login exitoso
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: success
+                  payload:
+                    $ref: "#/components/schemas/UsuarioResponse"
+        "400":
+          description: Credenciales inválidas o campos faltantes
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                error: Email o contraseña incorrectos
+        "401":
+          description: No autorizado
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "500":
+          description: Error interno del servidor
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /api/auth/logout:
+    post:
+      summary: Cierra la sesión del usuario autenticado
+      description: >
+        Invalida las cookies de sesión del usuario. Requiere estar autenticado.
+      tags:
+        - Auth
+      security:
+        - cookieAuth: []
+      responses:
+        "200":
+          description: Logout exitoso
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: success
+                  message:
+                    type: string
+                    example: Sesión cerrada correctamente
+        "401":
+          description: No autorizado — se requiere sesión activa
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "500":
+          description: Error interno del servidor
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /api/auth/me:
+    get:
+      summary: Obtiene el perfil del usuario autenticado
+      description: >
+        Retorna los datos del usuario actualmente autenticado a partir de su token de sesión.
+      tags:
+        - Auth
+      security:
+        - cookieAuth: []
+      responses:
+        "200":
+          description: Perfil del usuario obtenido correctamente
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: success
+                  payload:
+                    $ref: "#/components/schemas/UsuarioResponse"
+        "401":
+          description: No autorizado — se requiere sesión activa
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "500":
+          description: Error interno del servidor
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+components:
+  schemas:
+    UsuarioResponse:
+      type: object
+      description: Datos públicos del usuario autenticado.
+      properties:
+        nombre:
+          type: string
+          description: Nombre del usuario
+          example: Juan
+        apellido:
+          type: string
+          description: Apellido del usuario
+          example: Pérez
+        nombreUsuario:
+          type: string
+          description: Nombre de usuario único en la plataforma
+          example: juanperez
+        email:
+          type: string
+          description: Correo electrónico del usuario
+          example: juan@example.com
+      example:
+        nombre: Juan
+        apellido: Pérez
+        nombreUsuario: juanperez
+        email: juan@example.com
+
+    ErrorResponse:
+      type: object
+      description: Estructura estándar de respuesta de error.
+      properties:
+        error:
+          type: string
+          example: Descripción del error ocurrido
+      example:
+        error: Descripción del error ocurrido
+
+  requestBodies:
+    RegisterDto:
+      type: object
+      required:
+        - Nombre
+        - Apellido
+        - NombreUsuario
+        - Email
+        - Pwd
+      description: Datos necesarios para registrar un nuevo usuario.
+      properties:
+        Nombre:
+          type: string
+          description: Nombre del usuario
+          example: Juan
+        Apellido:
+          type: string
+          description: Apellido del usuario
+          example: Pérez
+        NombreUsuario:
+          type: string
+          description: Nombre de usuario único en la plataforma
+          example: juanperez
+        Email:
+          type: string
+          description: Correo electrónico único del usuario
+          example: juan@example.com
+        Pwd:
+          type: string
+          description: Contraseña del usuario, será hasheada con bcrypt antes de guardarse
+          example: secret123
+      example:
+        Nombre: Juan
+        Apellido: Pérez
+        NombreUsuario: juanperez
+        Email: juan@example.com
+        Pwd: secret123
+
+    LoginDto:
+      type: object
+      required:
+        - Email
+        - Pwd
+      description: Credenciales de acceso al sistema.
+      properties:
+        Email:
+          type: string
+          description: Correo electrónico registrado
+          example: juan@example.com
+        Pwd:
+          type: string
+          description: Contraseña del usuario
+          example: secret123
+      example:
+        Email: juan@example.com
+        Pwd: secret123

@@ -1,23 +1,15 @@
 import { Injectable, signal } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { Player, PlayerDetailData, PlayerCreateDto, PlayerUpdateDto, PaginatedPlayers } from '../models/player.model';
+import { Player, PlayerDetailData, PlayerCreateDto, PlayerUpdateDto, PaginatedPlayers, PlayerFilters } from '../models/player.model';
 import { Version } from '../models/version.model';
-
-export interface PlayerFilters {
-  esHombre?: boolean;
-  versionId?: number;
-  creadoPorMi?: boolean;
-  page?: number;
-}
-
 
 @Injectable({
   providedIn: 'root'
 })
 export class PlayerService {
 
-  private readonly API = 'http://localhost:8080/api/jugador';
-  private readonly VERSION_API = 'http://localhost:8080/api/version';
+  private readonly API = '/api/jugador';
+  private readonly VERSION_API = '/api/version';
 
   // Signal con la lista de jugadores actual
   players = signal<Player[]>([]);
@@ -26,12 +18,6 @@ export class PlayerService {
   selectedPlayer = signal<PlayerDetailData | null>(null);
 
   constructor(private http: HttpClient) {}
-
-  getIdJugador(idVersionJugador: number) {
-  return this.http.get<{ IdJugador: number }>(`${this.API}/${idVersionJugador}/jugador-id`, {
-    withCredentials: true
-  });
-}
 
 exportPlayers(filters: PlayerFilters = {}) {
   let params = new HttpParams();

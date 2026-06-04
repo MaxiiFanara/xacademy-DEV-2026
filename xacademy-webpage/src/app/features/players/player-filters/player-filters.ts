@@ -1,5 +1,5 @@
 import { Component, output, signal } from '@angular/core';
-import { PlayerFilters as PlayerFiltersType } from '../../../core/services/player';
+import { PlayerFilters } from '../../../core/models/player.model';
 
 // PrimeNG
 import { ButtonModule } from 'primeng/button';
@@ -11,9 +11,9 @@ import { ButtonGroupModule } from 'primeng/buttongroup';
   templateUrl: './player-filters.html',
   styleUrl: './player-filters.scss'
 })
-export class PlayerFilters {
+export class PlayerFiltersComponent {
 
-  filterChange = output<PlayerFiltersType>();
+  filterChange = output<PlayerFilters>();
   activeFilter = signal<string>('todos');
 
   showAll() {

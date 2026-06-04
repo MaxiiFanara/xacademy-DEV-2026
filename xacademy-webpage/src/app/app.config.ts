@@ -8,8 +8,11 @@ import { routes } from './app.routes';
 import { AuthService } from './core/services/auth';
 
 function initAuth(authService: AuthService) {
-  return () => authService.checkSession().subscribe({
-    error: () => {}
+  return () => new Promise<void>(resolve => {
+    authService.checkSession().subscribe({
+      next: () => resolve(),
+      error: () => resolve()
+    });
   });
 }
 

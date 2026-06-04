@@ -13,8 +13,10 @@ import passport from './config/passport.js';
 import { silentRefresh } from './middleware/auth.js';
  
 import indexRoutes from './routes/index.js';
- 
+
 import { env } from './config/env.js';
+
+import { swaggerSpec, swaggerUi } from './config/swagger.js';
  
 import path from 'path';
  
@@ -57,19 +59,7 @@ app.use(compression({
 }));
  
 app.use(express.json());
- 
-app.use((req, res, next) => {
- 
-  console.log('METHOD:', req.method);
- 
-  console.log('PATH:', req.path);
- 
-  console.log('BODY:', req.body);
- 
-  next();
- 
-});
- 
+
 app.use(express.urlencoded({ extended: true }));
  
 app.use(cookieParser(env.COOKIE_SECRET));
@@ -77,21 +67,15 @@ app.use(cookieParser(env.COOKIE_SECRET));
 app.use(passport.initialize());
  
 app.use(silentRefresh);
- 
-app.use((req, res, next) => {
- 
-  console.log('LLEGÓ DESPUÉS DE SILENT REFRESH');
- 
-  next();
- 
-});
- 
+
 // Servir imágenes estáticas
  
 app.use('/img', express.static(path.join(__dirname, '../img')));
  
+// Swagger UI
+app.use('/api/docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+
 // API
- 
 app.use('/api', indexRoutes);
  
 export default app;

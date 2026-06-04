@@ -75,7 +75,7 @@
     (onClick)="goToPage(currentPage() - 1)"
   />
 
-  @for (page of getPages(); track page) {
+  @for (page of pages(); track page) {
     <p-button
       [label]="page.toString()"
       [severity]="page === currentPage() ? 'primary' : 'secondary'"

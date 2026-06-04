@@ -1,4 +1,5 @@
 import {setTokenCookies} from '../utils/cookies.js';
+import logger from '../config/winston.js';
 
 class AuthController {
   constructor(authService) {
@@ -10,6 +11,7 @@ class AuthController {
     const { user } = await this.authService.register(req.body);
     res.status(201).json({ user });
   } catch (error) {
+    logger.error(error);
     res.status(400).json({ error: error.message });
   }
 };
@@ -20,6 +22,7 @@ class AuthController {
       setTokenCookies(res, accessToken, refreshToken);
       res.status(200).json({ user });
     } catch (error) {
+      logger.error(error);
       res.status(401).json({ error: error.message });
     }
   };

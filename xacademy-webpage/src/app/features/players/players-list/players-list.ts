@@ -1,13 +1,15 @@
-import { Component, inject, signal, OnInit } from '@angular/core';
+import { Component, inject, signal, OnInit, DestroyRef } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Router } from '@angular/router';
-import { PlayerService, PlayerFilters } from '../../../core/services/player';
+import { PlayerService } from '../../../core/services/player';
 import { ExportService } from '../../../core/services/export';
 import { Player } from '../../../core/models/player.model';
+import { PlayerFilters } from '../../../core/models/player.model';
 
 import { Navbar } from '../../../shared/components/navbar/navbar';
 import { Footer } from '../../../shared/components/footer/footer';
 import { PlayerTable } from '../player-table/player-table';
-import { PlayerFilters as PlayerFiltersComponent } from '../player-filters/player-filters';
+import { PlayerFiltersComponent } from '../player-filters/player-filters';
 import { LoadingSpinner } from '../../../shared/components/loading-spinner/loading-spinner';
 import { PlayerForm } from '../player-form/player-form';
 import { ImportCsv } from '../import-csv/import-csv';
@@ -29,6 +31,7 @@ import { MessageService } from 'primeng/api';
 })
 export class PlayersList implements OnInit {
 
+  private destroyRef = inject(DestroyRef);
   private playerService = inject(PlayerService);
   private router = inject(Router);
   private messageService = inject(MessageService);
@@ -59,7 +62,9 @@ onImported() {
 
   loadPlayers(filters: PlayerFilters = {}, page: number = 1) {
     this.loading.set(true);
-    this.playerService.getPlayers({ ...filters, page }).subscribe({
+    this.playerService.getPlayers({ ...filters, page })
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
       next: (res) => {
         this.players.set(res.data);
         this.totalRecords.set(res.total);
@@ -81,7 +86,9 @@ onImported() {
 
   downloadCSV() {
   this.exporting.set(true);
-  this.playerService.exportPlayers(this.currentFilters()).subscribe({
+  this.playerService.exportPlayers(this.currentFilters())
+    .pipe(takeUntilDestroyed(this.destroyRef))
+    .subscribe({
     next: (players) => {
       this.exportService.exportToCSV(players, 'jugadores-fifa');
       this.exporting.set(false);

@@ -1,4 +1,5 @@
 // src/core/BaseController.js
+import logger from '../config/winston.js';
 
 class BaseController {
   constructor(service) {
@@ -10,6 +11,7 @@ class BaseController {
       const records = await this.service.getAll();
       res.status(200).json(records);
     } catch (error) {
+      logger.error(error);
       res.status(500).json({ error: error.message });
     }
   };
@@ -20,6 +22,7 @@ class BaseController {
       const record = await this.service.getById(id);
       res.status(200).json(record);
     } catch (error) {
+      logger.error(error);
       if (error.message === 'Registro no encontrado') {
         return res.status(404).json({ error: error.message });
       }
@@ -33,6 +36,7 @@ class BaseController {
       const newRecord = await this.service.create(data);
       res.status(201).json(newRecord); // 201 = Created
     } catch (error) {
+      logger.error(error);
       res.status(400).json({ error: error.message }); // 400 = Bad Request (suele ser error de validación de Sequelize)
     }
   };
@@ -44,6 +48,7 @@ class BaseController {
       const updatedRecord = await this.service.update(id, data);
       res.status(200).json(updatedRecord);
     } catch (error) {
+      logger.error(error);
       if (error.message.includes('no encontrado')) {
         return res.status(404).json({ error: error.message });
       }
@@ -57,6 +62,7 @@ class BaseController {
       await this.service.delete(id);
       res.status(200).json({ message: 'Registro eliminado correctamente' });
     } catch (error) {
+      logger.error(error);
       if (error.message.includes('no encontrado')) {
         return res.status(404).json({ error: error.message });
       }

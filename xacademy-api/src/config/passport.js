@@ -1,11 +1,6 @@
 import passport from 'passport';
 import { Strategy as JwtStrategy } from 'passport-jwt';
 import { UsuarioModel } from '../db/models/index.js';
-/*
-const cookieExtractor = (req) => {
-  if (!req?.signedCookies) return null;
-  return req.signedCookies.access_token || null;  // ← signedCookies
-};*/
 
 const cookieExtractor = (req) => {
   if (!req) return null;
