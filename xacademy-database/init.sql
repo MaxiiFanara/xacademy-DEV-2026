@@ -733,18 +733,6 @@ INSERT INTO Skill (Nombre, EsArquero) VALUES
 ('POS', TRUE);  -- Id 12, Posicionamiento / Positioning
 
 -- ============================================================
--- USUARIOS DE EJEMPLO
--- Cubre los tres métodos de autenticación disponibles.
--- ============================================================
-INSERT INTO Usuario (Nombre, Apellido, NombreUsuario, Email, Pwd, AuthProvider, ProviderId) VALUES
--- Usuario local con contraseña hasheada con bcrypt
-('Juan',   'Pérez',  'jperez',  'juan@email.com',    '$2b$10$hashejuan',   'local',  NULL),
--- Usuario autenticado con Google (sin contraseña)
-('María',  'López',  'mlopez',  'maria@email.com',   NULL, 'google', '104829301847263819'),
--- Usuario autenticado con GitHub (sin contraseña)
-('Carlos', 'García', 'cgarcia', 'carlos@email.com',  NULL, 'github', '48291034');
-
--- ============================================================
 -- JUGADORES DE EJEMPLO
 -- 6 jugadores que cubren todos los casos de uso del sistema:
 --
