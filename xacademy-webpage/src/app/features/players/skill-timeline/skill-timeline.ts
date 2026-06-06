@@ -1,8 +1,7 @@
-import { Component, input, output, signal, inject } from '@angular/core';
+import { Component, input, signal, inject } from '@angular/core';
 import { Skill, SkillEvolution } from '../../../core/models/skill.model';
 import { SkillService } from '../../../core/services/skill';
 import { LoadingSpinner } from '../../../shared/components/loading-spinner/loading-spinner';
-// PrimeNG
 import { TimelineModule } from 'primeng/timeline';
 import { SelectModule } from 'primeng/select';
 import { CardModule } from 'primeng/card';
@@ -17,7 +16,6 @@ import { FormsModule } from '@angular/forms';
 })
 export class SkillTimeline {
 
-  // ID del jugador (tabla Jugador, no VersionJugador)
   idJugador = input.required<number>();
   skills = input.required<Skill[]>();
 

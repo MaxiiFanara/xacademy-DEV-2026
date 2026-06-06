@@ -11,10 +11,8 @@ export class PlayerService {
   private readonly API = '/api/jugador';
   private readonly VERSION_API = '/api/version';
 
-  // Signal con la lista de jugadores actual
   players = signal<Player[]>([]);
 
-  // Signal con el jugador en detalle
   selectedPlayer = signal<PlayerDetailData | null>(null);
 
   constructor(private http: HttpClient) {}
@@ -28,7 +26,6 @@ exportPlayers(filters: PlayerFilters = {}) {
   return this.http.get<Player[]>(`${this.API}/export`, { params, withCredentials: true });
 }
 
-  // Obtener listado con filtros opcionales y paginación
   getPlayers(filters: PlayerFilters = {}) {
     let params = new HttpParams();
 
@@ -51,7 +48,6 @@ exportPlayers(filters: PlayerFilters = {}) {
     });
   }
 
-  // Obtener detalle de un jugador por ID de VersionJugador
  getPlayerById(id: number) {
   return this.http.get<PlayerDetailData>(`${this.API}/${id}`, {
     withCredentials: true
@@ -64,7 +60,6 @@ getPlayerAnalysis(idVersionJugador: number) {
   });
 }
 
-  // Crear jugador
  createPlayer(formData: FormData) {
   return this.http.post<any>(this.API, formData, {
     withCredentials: true
@@ -82,8 +77,6 @@ updatePlayer(id: number, formData: FormData) {
   });
 }
 
-  // Evolución de una skill a lo largo del tiempo
-  // idJugador es el ID de la tabla Jugador (no VersionJugador)
   getSkillEvolution(idJugador: number, skillId: number) {
     return this.http.get(`${this.API}/${idJugador}/evolucion`, {
       params: new HttpParams().set('skillId', skillId.toString()),
@@ -91,7 +84,6 @@ updatePlayer(id: number, formData: FormData) {
     });
   }
 
-  // Obtener versiones FIFA disponibles
   getVersions() {
     return this.http.get<Version[]>(this.VERSION_API, {
       withCredentials: true

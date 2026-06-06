@@ -19,10 +19,8 @@
       @if (!loading() && player()) {
         @let p = player()!;
 
-        <!-- CARD HEADER -->
         <app-player-card-header [player]="p" />
 
-        <!-- RADAR CHART -->
         <div class="section">
           <h3 class="section-title">Habilidades</h3>
           @defer (on idle) {
@@ -32,7 +30,6 @@
           }
         </div>
 
-        <!-- BOTONES -->
         <div class="timeline-action">
           <p-button
             [label]="showTimeline() ? 'Ocultar evolución' : 'Ver evolución de habilidades'"
@@ -49,7 +46,6 @@
           />
         </div>
 
-        <!-- TIMELINE -->
         @if (showTimeline()) {
           <div class="section">
             @defer (on idle) {
@@ -63,7 +59,6 @@
           </div>
         }
 
-        <!-- ANÁLISIS IA -->
         @if (showAnalysis()) {
           <div class="analysis-section">
             @if (loadingAnalysis()) {

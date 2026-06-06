@@ -83,7 +83,6 @@ onImported() {
     });
   }
 
-
   downloadCSV() {
   this.exporting.set(true);
   this.playerService.exportPlayers(this.currentFilters())

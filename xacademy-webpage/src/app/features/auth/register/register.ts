@@ -4,7 +4,6 @@ import { Router } from '@angular/router';
 import { AuthService } from '../../../core/services/auth';
 import { RegisterDto } from '../../../core/models/user.model';
 
-// PrimeNG
 import { CardModule } from 'primeng/card';
 import { InputTextModule } from 'primeng/inputtext';
 import { PasswordModule } from 'primeng/password';

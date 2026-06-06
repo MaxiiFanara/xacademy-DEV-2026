@@ -91,7 +91,6 @@ exportAll = async (req, res) => {
 
 create = async (req, res) => {
   try {
-    // Si se subió una imagen, agregar la ruta al body
     if (req.file) {
       req.body.imagenPath = `/img/${req.file.filename}`;
     }
@@ -151,7 +150,6 @@ importCsv = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
-
 }
 
 export default JugadorController;

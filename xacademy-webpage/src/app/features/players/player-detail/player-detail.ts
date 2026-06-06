@@ -3,9 +3,9 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router } from '@angular/router';
 import { PlayerService } from '../../../core/services/player';
 import { SkillService } from '../../../core/services/skill';
-import { PlayerDetailData } from '../../../core/models/player.model';import { Skill } from '../../../core/models/skill.model';
+import { PlayerDetailData } from '../../../core/models/player.model';
+import { Skill } from '../../../core/models/skill.model';
 
-// Componentes propios
 import { Navbar } from '../../../shared/components/navbar/navbar';
 import { Footer } from '../../../shared/components/footer/footer';
 import { PlayerCardHeader } from '../player-card-header/player-card-header';
@@ -13,7 +13,6 @@ import { RadarChart } from '../../../shared/components/radar-chart/radar-chart';
 import { SkillTimeline } from '../skill-timeline/skill-timeline';
 import { LoadingSpinner } from '../../../shared/components/loading-spinner/loading-spinner';
 
-// PrimeNG
 import { ButtonModule } from 'primeng/button';
 import { SelectModule } from 'primeng/select';
 
@@ -40,7 +39,8 @@ export class PlayerDetail implements OnInit {
   private playerService = inject(PlayerService);
   private skillService = inject(SkillService);
 
-player = signal<PlayerDetailData | null>(null);  selectedSkill = signal<Skill | null>(null);
+  player = signal<PlayerDetailData | null>(null);
+  selectedSkill = signal<Skill | null>(null);
   showTimeline = signal(false);
   loading = signal(true);
   availableSkills = signal<Skill[]>([]);

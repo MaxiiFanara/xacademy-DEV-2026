@@ -1,7 +1,6 @@
 import { Component, output, signal } from '@angular/core';
 import { PlayerFilters } from '../../../core/models/player.model';
 
-// PrimeNG
 import { ButtonModule } from 'primeng/button';
 import { ButtonGroupModule } from 'primeng/buttongroup';
 

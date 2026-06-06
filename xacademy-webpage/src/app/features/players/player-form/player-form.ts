@@ -67,10 +67,9 @@ export class PlayerForm implements OnInit {
   esHombre = signal(true);
   versionJugadorId = signal<number | null>(null);
 
-  // Imagen seleccionada
   selectedFile = signal<File | null>(null);
   imagePreview = signal<string | null>(null);
-  imagenActual = signal<string | null>(null); // imagen existente en edición
+  imagenActual = signal<string | null>(null);
 
   filteredSkills = computed(() =>
     this.skills().filter(s => s.EsArquero === this.esArquero())
@@ -78,12 +77,11 @@ export class PlayerForm implements OnInit {
 
   calificacion = signal(0);
 
-  private updateCalificacion() {
-    this.playerForm.get('skills')?.valueChanges.subscribe(vals => {
-      if (!vals || vals.length === 0) { this.calificacion.set(0); return; }
-      const sum = vals.reduce((a: number, s: any) => a + (s.valor || 0), 0);
-      this.calificacion.set(Math.round(sum / vals.length));
-    });
+  private recalcularCalificacion() {
+    const controls = this.skillsArray.controls;
+    if (controls.length === 0) { this.calificacion.set(0); return; }
+    const sum = controls.reduce((a, c) => a + (c.get('valor')?.value || 0), 0);
+    this.calificacion.set(Math.round(sum / controls.length));
   }
 
   today = new Date();
@@ -134,7 +132,6 @@ export class PlayerForm implements OnInit {
     this.selectedFile.set(file);
     this.errorMessage.set(null);
 
-    // Preview
     const reader = new FileReader();
     reader.onload = (e) => this.imagePreview.set(e.target?.result as string);
     reader.readAsDataURL(file);
@@ -148,7 +145,7 @@ export class PlayerForm implements OnInit {
       );
       if (control) control.get('valor')?.setValue(skill.valor);
     });
-    this.onSkillValueChange();
+    this.recalcularCalificacion();
   }
 
   precargarPosiciones(posiciones: { idPosicion: number; esPrincipal: boolean }[]) {
@@ -187,7 +184,6 @@ export class PlayerForm implements OnInit {
               idClub: player.idClub,
             });
 
-            // Guardar imagen actual para mostrarla
             if (player.imagenUrl) {
               this.imagenActual.set(player.imagenUrl);
             }
@@ -230,15 +226,12 @@ export class PlayerForm implements OnInit {
 
   onSkillValueChange() {
     this.skillsArray.controls.forEach(c => {
-      let v = c.get('valor')?.value;
+      const v = c.get('valor')?.value;
       if (v === null || v === undefined) return;
       if (v > 99) c.get('valor')?.setValue(99, { emitEvent: false });
       if (v < 1) c.get('valor')?.setValue(1, { emitEvent: false });
     });
-    const vals = this.skillsArray.controls.map(c => c.get('valor')?.value || 0);
-    if (vals.length === 0) { this.calificacion.set(0); return; }
-    const sum = vals.reduce((a: number, b: number) => a + b, 0);
-    this.calificacion.set(Math.round(sum / vals.length));
+    this.recalcularCalificacion();
   }
 
   onPosicionChange(posicion: Position, checked: boolean) {
@@ -262,7 +255,11 @@ export class PlayerForm implements OnInit {
       this.buildSkillsArray(true);
     } else {
       const idx = arr.controls.findIndex(c => c.get('idPosicion')?.value === posicion.Id);
+      const eraPrincipal = idx !== -1 && arr.controls[idx].get('esPrincipal')?.value;
       if (idx !== -1) arr.removeAt(idx);
+      if (eraPrincipal && arr.length > 0) {
+        arr.controls[0].get('esPrincipal')?.setValue(true);
+      }
       if (esPortero) {
         this.esArquero.set(false);
         this.buildSkillsArray(false);
@@ -276,6 +273,10 @@ export class PlayerForm implements OnInit {
     return this.posicionesArray.controls.some(c => c.get('idPosicion')?.value === id);
   }
 
+  getPosicionControl(id: number) {
+    return this.posicionesArray.controls.find(c => c.get('idPosicion')?.value === id);
+  }
+
   setPrincipal(id: number) {
     this.posicionesArray.controls.forEach(c => {
       c.get('esPrincipal')?.setValue(c.get('idPosicion')?.value === id);
@@ -283,6 +284,15 @@ export class PlayerForm implements OnInit {
   }
 
   buildSkillsArray(preservarValores: boolean = false) {
+    const nuevasIds = this.filteredSkills().map(s => s.Id);
+    const actualesIds = this.skillsArray.controls.map(c => c.get('idSkill')?.value);
+    const mismoSet = nuevasIds.length === actualesIds.length
+      && nuevasIds.every((id, i) => id === actualesIds[i]);
+    if (mismoSet) {
+      this.recalcularCalificacion();
+      return;
+    }
+
     const valoresActuales: { [idSkill: number]: number } = {};
     if (preservarValores) {
       this.skillsArray.controls.forEach(c => {
@@ -299,11 +309,7 @@ export class PlayerForm implements OnInit {
         valor: [valorPrevio, [Validators.required, Validators.min(1), Validators.max(99)]]
       }));
     });
-    this.updateCalificacion();
-    if (this.filteredSkills().length > 0) {
-      const sum = this.skillsArray.controls.reduce((a, c) => a + (c.get('valor')?.value || 0), 0);
-      this.calificacion.set(Math.round(sum / this.skillsArray.length));
-    }
+    this.recalcularCalificacion();
   }
 
   private buildFormData(): FormData {

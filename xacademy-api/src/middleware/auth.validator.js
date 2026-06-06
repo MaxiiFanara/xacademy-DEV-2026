@@ -1,6 +1,5 @@
 import { body, validationResult } from 'express-validator';
 
-// Middleware que lee los errores y corta el ciclo si hay alguno
 export const handleValidationErrors = (req, res, next) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {

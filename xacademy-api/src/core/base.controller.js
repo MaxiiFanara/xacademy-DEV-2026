@@ -1,4 +1,3 @@
-// src/core/BaseController.js
 import logger from '../config/winston.js';
 
 class BaseController {
@@ -34,10 +33,10 @@ class BaseController {
     try {
       const data = req.body;
       const newRecord = await this.service.create(data);
-      res.status(201).json(newRecord); // 201 = Created
+      res.status(201).json(newRecord);
     } catch (error) {
       logger.error(error);
-      res.status(400).json({ error: error.message }); // 400 = Bad Request (suele ser error de validación de Sequelize)
+      res.status(400).json({ error: error.message });
     }
   };
 

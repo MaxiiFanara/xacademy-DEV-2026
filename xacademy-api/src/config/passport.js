@@ -4,7 +4,6 @@ import { UsuarioModel } from '../db/models/index.js';
 
 const cookieExtractor = (req) => {
   if (!req) return null;
-  // Intenta primero signedCookies, luego cookies normales
   return req.signedCookies?.access_token || req.cookies?.access_token || null;
 };
 

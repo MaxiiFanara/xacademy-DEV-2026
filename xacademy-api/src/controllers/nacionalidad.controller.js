@@ -1,7 +1,7 @@
 import BaseController from '../core/base.controller.js';
 
 class NacionalidadController extends BaseController {
-  constructor(nacionalidadService) {   // ← recibe el servicio inyectado
+  constructor(nacionalidadService) {
     super(nacionalidadService);
   }
 }

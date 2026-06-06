@@ -4,7 +4,6 @@ import { Router } from '@angular/router';
 import { AuthService } from '../../../core/services/auth';
 import { LoginDto } from '../../../core/models/user.model';
 
-// PrimeNG
 import { CardModule } from 'primeng/card';
 import { InputTextModule } from 'primeng/inputtext';
 import { PasswordModule } from 'primeng/password';
@@ -30,10 +29,8 @@ export class Login {
   private authService = inject(AuthService);
   private router = inject(Router);
 
-  // Signal para mostrar error del backend
   errorMessage = signal<string | null>(null);
 
-  // Signal para deshabilitar el botón mientras carga
   loading = signal(false);
 
   loginForm = this.fb.group({
@@ -41,7 +38,6 @@ export class Login {
     Pwd: ['', [Validators.required, Validators.minLength(8)]]
   });
 
-  // Getters para acceder fácilmente a los campos en el template
   get email() { return this.loginForm.get('Email'); }
   get pwd() { return this.loginForm.get('Pwd'); }
 

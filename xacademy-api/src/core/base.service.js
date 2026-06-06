@@ -1,5 +1,3 @@
-// src/core/BaseService.js
-
 class BaseService {
   constructor(repository) {
     this.repository = repository;
@@ -18,7 +16,6 @@ class BaseService {
   }
 
   async create(data) {
-    // Aquí podrías agregar lógica de negocio genérica antes de crear
     return await this.repository.create(data);
   }
 

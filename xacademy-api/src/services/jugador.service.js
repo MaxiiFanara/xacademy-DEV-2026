@@ -76,9 +76,6 @@ async getDetailById(id) {
 }
 
 
-
-
-
   async getEvolucionSkill(idJugador, idSkill) {
     if (!idSkill) {
       throw new Error('El parámetro skillId es requerido');
@@ -96,7 +93,6 @@ async getDetailById(id) {
       valor: r.ValorSkill,
     }));
   }
-
 
 _validatePlayerData(posiciones, skills, calificacion) {
   const principales = posiciones.filter(p => p.esPrincipal);
@@ -125,7 +121,7 @@ async create(body, usuarioActivo) {
 
   const calificacionCalculada = this._validatePlayerData(posiciones, skills, calificacion);
 
-  const duplicado = await this.repository.existeDuplicado(nombre, apellido, fechaNacimiento);
+  const duplicado = await this.repository.existeDuplicado(nombre, apellido, fechaNacimiento, usuarioActivo.Id);
   if (duplicado) throw new Error('Ya existe un jugador con ese nombre, apellido y fecha de nacimiento');
 
   return await this.repository.crearCompleto({
@@ -168,7 +164,6 @@ async update(idVersionJugador, body) {
 
   const calificacionCalculada = this._validatePlayerData(posiciones, skills, calificacion);
 
-  // Si no se subió nueva imagen, mantener la existente
   const imagenActual = imagenPath || versionExiste.ImagenPath || null;
 
   return await this.repository.actualizarCompleto({
@@ -216,7 +211,6 @@ async importFromCsv(csvContent) {
 
   return { total: rows.length, procesados, errores, detalles };
 }
-
 
 }
 

@@ -2,7 +2,7 @@ import BaseController from '../core/base.controller.js';
 import logger from '../config/winston.js';
 
 class SkillController extends BaseController {
-  constructor(skillService) {   // ← recibe el servicio inyectado
+  constructor(skillService) {
     super(skillService);
   }
 

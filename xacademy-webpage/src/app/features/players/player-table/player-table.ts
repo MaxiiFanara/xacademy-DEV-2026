@@ -1,7 +1,6 @@
 import { Component, computed, input, output } from '@angular/core';
 import { Player } from '../../../core/models/player.model';
 
-// PrimeNG
 import { TableModule } from 'primeng/table';
 import { ButtonModule } from 'primeng/button';
 import { TagModule } from 'primeng/tag';

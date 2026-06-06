@@ -1,5 +1,4 @@
 import { Router } from 'express';
-// Importamos el controlador ya ensamblado desde nuestra carpeta DI
 import skillController from '../DI/skill.container.js';
 
 const router = Router();

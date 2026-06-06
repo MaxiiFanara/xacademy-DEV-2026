@@ -1,4 +1,3 @@
-// xacademy-api/src/db/connection.js
 'use strict'
 
 import Sequelize from 'sequelize'
@@ -14,8 +13,4 @@ export const sequelize = new Sequelize(
 export const connectDB = async () => {
     await sequelize.authenticate()
 }
-
-
-
-
 

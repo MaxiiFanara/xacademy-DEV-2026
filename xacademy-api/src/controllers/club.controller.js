@@ -2,7 +2,7 @@ import BaseController from '../core/base.controller.js';
 import logger from '../config/winston.js';
 
 class ClubController extends BaseController {
-  constructor(clubService) {   // ← recibe el servicio inyectado
+  constructor(clubService) {
     super(clubService);
   }
 

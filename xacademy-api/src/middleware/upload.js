@@ -6,7 +6,6 @@ import { fileURLToPath } from 'url';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// Sube dos niveles: desde src/middleware/ hasta xacademy-api/img/
 const uploadDir = path.join(__dirname, '../../img');
 
 if (!fs.existsSync(uploadDir)) {
@@ -38,7 +37,7 @@ export const uploadImage = multer({
 });
 
 export const uploadCsv = multer({
-  storage: multer.memoryStorage(), // guardar en memoria, no en disco
+  storage: multer.memoryStorage(),
   fileFilter: (req, file, cb) => {
     if (file.mimetype === 'text/csv' || file.originalname.endsWith('.csv')) {
       cb(null, true);
@@ -46,10 +45,9 @@ export const uploadCsv = multer({
       cb(new Error('Solo se permiten archivos CSV'), false);
     }
   },
-  limits: { fileSize: 10 * 1024 * 1024 } // 10MB máximo
+  limits: { fileSize: 10 * 1024 * 1024 }
 });
 
-// Parsea los campos posiciones y skills que vienen como strings JSON en multipart/form-data
 export const parseMultipartBody = (req, res, next) => {
   if (req.body.posiciones && typeof req.body.posiciones === 'string') {
     req.body.posiciones = JSON.parse(req.body.posiciones);

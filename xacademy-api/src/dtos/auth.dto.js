@@ -1,4 +1,3 @@
-// DTO de entrada — sanitiza y normaliza lo que llega del request
 export class RegisterDto {
   constructor({ Nombre, Apellido, NombreUsuario, Email, Pwd }) {
     this.Nombre        = Nombre?.trim();
@@ -16,7 +15,6 @@ export class LoginDto {
   }
 }
 
-// DTO de salida — controla qué campos se exponen al front
 export class UsuarioResponseDto {
   constructor(user) {
     this.nombre        = user.Nombre;

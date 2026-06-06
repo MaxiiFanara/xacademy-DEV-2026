@@ -1,7 +1,6 @@
 import { Component, inject, signal, output } from '@angular/core';
 import { PlayerService } from '../../../core/services/player';
 
-// PrimeNG
 import { ButtonModule } from 'primeng/button';
 import { MessageModule } from 'primeng/message';
 import { TableModule } from 'primeng/table';

@@ -6,10 +6,7 @@ import logger from './config/winston.js'
 const initServer = async ()=> {
     try{
         await connectDB()
-        app.listen (env.PORT, ()=>{
-            console.log(`Servidor escuchando el puerto ${env.PORT}`)
-        })
-
+        app.listen (env.PORT, ()=>{})
     }
     catch (error){
         logger.error(error)

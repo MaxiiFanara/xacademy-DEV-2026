@@ -1,7 +1,7 @@
 import BaseController from '../core/base.controller.js';
 
 class PosicionController extends BaseController {
-  constructor(posicionService) {   // ← recibe el servicio inyectado
+  constructor(posicionService) {
     super(posicionService);
   }
 }

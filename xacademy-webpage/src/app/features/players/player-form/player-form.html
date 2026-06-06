@@ -19,7 +19,6 @@
           @if (!loading()) {
             <form [formGroup]="playerForm" (ngSubmit)="onSubmit()">
 
-              <!-- DATOS BASICOS -->
               <h3 class="section-title">Datos básicos</h3>
               <div class="form-grid">
 
@@ -39,7 +38,6 @@
                   }
                 </div>
 
-                <!-- IMAGEN -->
 <div class="field full-width">
   <label>Imagen del jugador (WebP)</label>
   <input
@@ -80,7 +78,6 @@
                   />
                 </div>
 
-                <!-- SOLO EN CREAR -->
                 @if (isCreate) {
                   <div class="field">
                     <label>Fecha de nacimiento</label>
@@ -119,7 +116,6 @@
 
               </div>
 
-              <!-- LIGA Y CLUB -->
               <h3 class="section-title">Club</h3>
               <div class="form-grid">
                 <div class="field">
@@ -149,7 +145,6 @@
                 </div>
               </div>
 
-              <!-- POSICIONES -->
               <h3 class="section-title">Posiciones</h3>
               <p class="section-hint">Seleccioná al menos una. La primera seleccionada será la principal — podés cambiarlo con el botón.</p>
               <div class="posiciones-grid">
@@ -165,8 +160,8 @@
                     <span class="posicion-nombre">{{ pos.Nombre }}</span>
                     @if (isPosicionSelected(pos.Id)) {
                       <p-tag
-                        [value]="posicionesArray.controls[0]?.get('idPosicion')?.value === pos.Id ? 'Principal' : 'Secundaria'"
-                        [severity]="posicionesArray.controls[0]?.get('idPosicion')?.value === pos.Id ? 'success' : 'secondary'"
+                        [value]="getPosicionControl(pos.Id)?.get('esPrincipal')?.value ? 'Principal' : 'Secundaria'"
+                        [severity]="getPosicionControl(pos.Id)?.get('esPrincipal')?.value ? 'success' : 'secondary'"
                         class="clickable"
                         (click)="setPrincipal(pos.Id)"
                       />
@@ -175,7 +170,6 @@
                 }
               </div>
 
-              <!-- HABILIDADES -->
               @if (posicionesArray.length > 0) {
                 <h3 class="section-title">
                   Habilidades
@@ -204,12 +198,10 @@
                 <p class="section-hint">Seleccioná al menos una posición para ver las habilidades.</p>
               }
 
-              <!-- ERROR -->
               @if (errorMessage()) {
                 <p-message severity="error" [text]="errorMessage()!" />
               }
 
-              <!-- BOTONES -->
               <div class="actions">
                 <p-button
                   type="submit"

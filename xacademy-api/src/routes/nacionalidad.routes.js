@@ -1,5 +1,4 @@
 import { Router } from 'express';
-// Importamos el controlador ya ensamblado desde nuestra carpeta DI
 import nacionalidadController from '../DI/nacionalidad.container.js';
 
 const router = Router();

@@ -44,40 +44,18 @@ Frontend → GET /api/ia/jugador/:id/analisis
 ### Levantar todo
 
 ```bash
+docker compose up
+o
 docker compose up -d
 ```
 
-Esto levanta los 5 servicios en orden correcto:
+Este ultimo levanta los 5 servicios en orden correcto:
 1. `db` — MySQL 8.0 (espera hasta estar healthy con retries de 10)
 2. `ollama` — servidor LLM
 3. `ollama-init` — descarga el modelo gemma3 (solo corre una vez, luego sale)
 4. `api` — Node.js Express (espera a que `db` esté healthy y `ollama` esté started)
 5. `frontend` — Nginx con Angular (espera a que `api` esté started)
 
-### Comandos de uso frecuente
-
-```bash
-# Rebuild completo (necesario cuando cambia el Dockerfile o package.json)
-docker compose build
-
-# Rebuild y reinicio de un solo servicio
-docker compose build api
-docker compose build frontend
-
-# Hot-restart de la API (el código fuente está montado como volumen, no necesita rebuild)
-docker compose restart api
-
-# Ver logs en tiempo real
-docker compose logs api --tail=50
-docker compose logs frontend --tail=20
-docker compose logs db --tail=30
-
-# Detener todo
-docker compose down
-
-# Detener y borrar volúmenes (útil para reiniciar la DB desde cero)
-docker compose down -v
-```
 
 ### Puertos expuestos al host
 
@@ -154,38 +132,6 @@ La documentación interactiva está disponible en: `http://localhost:8080/api/do
 - Auth via `cookieAuth` (cookie `access_token`)
 - Para testear endpoints protegidos: primero hacer POST `/api/auth/login` (que establece la cookie), luego los demás endpoints funcionan automáticamente en la misma sesión del browser
 
-### Credenciales de prueba (cargadas en el init.sql)
-
-| Usuario | Email | Contraseña | Método |
-|---|---|---|---|
-| jperez | juan@email.com | (bcrypt hash — no funciona en dev sin reemplazar el hash) | local |
-| mlopez | maria@email.com | — | Google OAuth |
-| cgarcia | carlos@email.com | — | GitHub OAuth |
-
-Para crear un usuario local funcional desde cero: usar `POST /api/auth/register` con JSON `{ "Nombre": "...", "Apellido": "...", "NombreUsuario": "...", "Email": "...", "Pwd": "MiPassword1!" }`.
-
-### Test de Ollama
-
-```bash
-# Ver modelos disponibles en Ollama
-curl -s http://localhost:11435/api/tags
-
-# Test del endpoint de IA (necesita cookie válida)
-curl -b cookies.txt http://localhost:8080/api/ia/jugador/1/analisis
-```
-
-### Ver logs de errores
-
-```bash
-# Dentro del contenedor los logs se guardan en /api/logs/logs.errors
-docker compose exec api cat /api/logs/logs.errors
-```
-
-### Verificar charset de MySQL
-
-```bash
-docker compose exec db mysql -uroot -p${DB_PASSWORD} fifa_db -e "SHOW VARIABLES LIKE 'character_set%';"
-```
 
 ---
 

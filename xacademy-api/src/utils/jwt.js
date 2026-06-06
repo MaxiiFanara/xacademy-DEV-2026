@@ -6,7 +6,7 @@ const JWT_EXPIRES_IN =  env.JWT.EXPIRES_IN || '24h';
 
 export const generateAccessToken = (user) => {
   return jwt.sign(
-    { email: user.Email },   // ← solo email, nunca el id
+    { email: user.Email },
     JWT_SECRET,
     { expiresIn: JWT_EXPIRES_IN }
   );
@@ -14,7 +14,7 @@ export const generateAccessToken = (user) => {
 
 export const generateRefreshToken = (user) => {
   return jwt.sign(
-    { email: user.Email },   // ← solo email
+    { email: user.Email },
     JWT_SECRET,
     { expiresIn: '7d' }
   );

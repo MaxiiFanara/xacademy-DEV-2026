@@ -1,6 +1,3 @@
-// src/core/base.repository.js
-import { Op } from 'sequelize';
-
 class BaseRepository {
   constructor(model) {
     this.model = model;
@@ -14,14 +11,12 @@ class BaseRepository {
     return await this.model.findByPk(id, options);
   }
 
-    // Busca por cualquier campo: findByField('Email', 'messi@psg.com')
   async findByField(field, value, options = {}) {
     return await this.model.findOne({
       where: { [field]: value },
       ...options,
     });
   }
-
 
   async findAllByField(field, value, options = {}) {
   return await this.model.findAll({
@@ -35,10 +30,8 @@ class BaseRepository {
   }
 
   async update(id, data) {
-    // En MySQL, Sequelize no devuelve el objeto actualizado automáticamente.
-    // Hacemos el update y luego buscamos el registro para devolverlo.
     const [affectedRows] = await this.model.update(data, {
-      where: { Id: id } // Asumiendo que tu Primary Key siempre se llama 'Id'
+      where: { Id: id }
     });
 
     if (affectedRows === 0) return null;
@@ -49,7 +42,7 @@ class BaseRepository {
     const deletedRows = await this.model.destroy({
       where: { Id: id }
     });
-    return deletedRows > 0; // Devuelve true si se borró, false si no existía
+    return deletedRows > 0;
   }
 }
 

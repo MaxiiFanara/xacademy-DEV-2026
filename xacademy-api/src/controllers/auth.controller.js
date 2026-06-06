@@ -18,7 +18,7 @@ class AuthController {
 
   login = async (req, res) => {
     try {
-      const { accessToken, refreshToken, user } = await this.authService.login(req.body); // ← pasa todo el body
+      const { accessToken, refreshToken, user } = await this.authService.login(req.body);
       setTokenCookies(res, accessToken, refreshToken);
       res.status(200).json({ user });
     } catch (error) {

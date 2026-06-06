@@ -7,10 +7,8 @@
 
       <h1 class="page-title">Listado de jugadores</h1>
 
-      <!-- FILTROS -->
       <app-player-filters (filterChange)="onFilterChange($event)" />
 
-      <!-- TABLA -->
       @defer (on idle) {
         <app-player-table
   [players]="players()"
@@ -56,7 +54,6 @@
   <app-import-csv (imported)="onImported()" />
 </p-dialog>
 
-      <!-- DIALOG CREAR JUGADOR -->
       <p-dialog
         [visible]="showCreateDialog()"
         (visibleChange)="showCreateDialog.set($event)"
@@ -64,7 +61,9 @@
         [style]="{ width: '80vw', maxWidth: '900px' }"
         [draggable]="false"
       >
-        <app-player-form [standalone]="true" (saved)="closeCreateDialog()" />
+        @if (showCreateDialog()) {
+          <app-player-form [standalone]="true" (saved)="closeCreateDialog()" />
+        }
       </p-dialog>
 
     </div>

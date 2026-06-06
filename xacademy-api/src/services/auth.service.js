@@ -8,7 +8,7 @@ class AuthService {
   }
 
   async register(body) {
-    const dto = new RegisterDto(body);  // ← sanitiza la entrada
+    const dto = new RegisterDto(body);
 
     const existing = await this.authRepository.findByEmail(dto.Email);
     if (existing) throw new Error('El email ya está registrado');
@@ -26,7 +26,7 @@ class AuthService {
   }
 
   async login(body) {
-    const dto = new LoginDto(body);  // ← sanitiza la entrada
+    const dto = new LoginDto(body);
 
     const user = await this.authRepository.findByEmail(dto.Email);
     if (!user) throw new Error('Credenciales inválidas');
@@ -50,7 +50,7 @@ class AuthService {
     return {
       accessToken:  generateAccessToken(user),
       refreshToken: generateRefreshToken(user),
-      user:         new UsuarioResponseDto(user),  // ← DTO de salida
+      user:         new UsuarioResponseDto(user),
     };
   }
 }

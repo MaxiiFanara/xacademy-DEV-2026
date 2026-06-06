@@ -19,9 +19,7 @@ import {
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// Cargar .env desde la raíz del proyecto (3 niveles arriba de src/scripts/)
 config({ path: path.join(__dirname, '../../../.env') });
-// Leer el CSV
 const csvPath = process.argv[2];
 if (!csvPath) {
   console.error('❌ Uso: node src/scripts/importCsv.js <ruta-del-csv>');
@@ -37,7 +35,6 @@ const rows = parse(csvContent, {
 
 console.log(`📋 Total de filas a procesar: ${rows.length}`);
 
-// Cache para evitar queries repetidas
 const cache = {
   nacionalidades: {},
   clubs: {},
@@ -82,7 +79,6 @@ async function processRow(row) {
 
   const t = await sequelize.transaction();
   try {
-    // Buscar si ya existe el jugador
     let jugador = await JugadorModel.findOne({
       where: {
         Nombre: row.nombre,
@@ -107,7 +103,6 @@ async function processRow(row) {
       }, { transaction: t });
     }
 
-    // Buscar si ya existe la versión del jugador
     let versionJugador = await VersionJugadorModel.findOne({
       where: { IdJugador: jugador.Id, IdVersion: idVersion },
       transaction: t,
@@ -131,7 +126,6 @@ async function processRow(row) {
       });
     }
 
-    // Reemplazar posiciones
     await VersionJugadorPosicionModel.destroy({
       where: { IdVersionJugador: versionJugador.Id },
       transaction: t,
@@ -142,7 +136,6 @@ async function processRow(row) {
       EsPrincipal: true,
     }, { transaction: t });
 
-    // Reemplazar skills
     const skillNames = ['PAC', 'SHO', 'PAS', 'DRI', 'DEF', 'PHY', 'DIV', 'HAN', 'KIC', 'REF', 'SPE', 'POS'];
     const skillsData = skillNames
       .filter(name => row[name] !== undefined && row[name] !== '')

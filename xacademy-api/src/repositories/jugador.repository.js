@@ -67,15 +67,12 @@ async findAllExport({ versionId, esHombre, idUsuarioCreador, idUsuarioLogueado }
   return await VwListadoJugadores.findAll({ where });
 }
 
-// En el repository agregá este método
 async findPosicionesByVersionJugador(idVersionJugador) {
   return await VersionJugadorPosicionModel.findAll({
     where: { IdVersionJugador: idVersionJugador }
   });
 }
 
-
-  // src/repositories/jugador.repository.js
 async findVersionJugadorById(idVersionJugador) {
   return await VersionJugadorModel.findOne({
     where: { Id: idVersionJugador },
@@ -86,7 +83,7 @@ async findVersionJugadorById(idVersionJugador) {
     const rows = await VwDetalleJugador.findAll({
       where: { IdVersionJugador: id },
     });
-    return rows;  // devuelve las N filas crudas, el service las agrupa
+    return rows;
   }
 
   async getTrayectoria(idJugador) {
@@ -104,26 +101,27 @@ async findVersionJugadorById(idVersionJugador) {
     return rows;
   }
 
-   async existeDuplicado(nombre, apellido, fechaNacimiento) {
-    const { Op } = await import('sequelize');
+   async existeDuplicado(nombre, apellido, fechaNacimiento, idUsuarioCreador) {
     return await JugadorModel.findOne({
-      where: { Nombre: nombre, Apellido: apellido, FechaNacimiento: fechaNacimiento },
+      where: {
+        Nombre: nombre,
+        Apellido: apellido,
+        FechaNacimiento: fechaNacimiento,
+        IdUsuarioCreador: idUsuarioCreador,
+      },
     });
   }
 
   async crearCompleto({ jugador, versionJugador, posiciones, skills }) {
     const t = await sequelize.transaction();
     try {
-      // 1. Insertar en Jugador
       const nuevoJugador = await JugadorModel.create(jugador, { transaction: t });
 
-      // 2. Insertar en VersionJugador
       const nuevaVersion = await VersionJugadorModel.create(
         { ...versionJugador, IdJugador: nuevoJugador.Id },
         { transaction: t }
       );
 
-      // 3. Insertar posiciones
       const posicionesData = posiciones.map(p => ({
         IdVersionJugador: nuevaVersion.Id,
         IdPosicion:       p.idPosicion,
@@ -131,7 +129,6 @@ async findVersionJugadorById(idVersionJugador) {
       }));
       await VersionJugadorPosicionModel.bulkCreate(posicionesData, { transaction: t });
 
-      // 4. Insertar skills
       const skillsData = skills.map(s => ({
         IdVersionJugador: nuevaVersion.Id,
         IdSkill:          s.idSkill,
@@ -150,26 +147,22 @@ async findVersionJugadorById(idVersionJugador) {
 async actualizarCompleto({ idVersionJugador, jugador, versionJugador, posiciones, skills }) {
   const t = await sequelize.transaction();
   try {
-    // Obtener el IdJugador real desde VersionJugador
     const version = await VersionJugadorModel.findOne({
       where: { Id: idVersionJugador },
       transaction: t,
     });
     if (!version) throw new Error('VersionJugador no encontrada');
 
-    // 1. Actualizar tabla Jugador con el ID real obtenido de la BD
     await JugadorModel.update(jugador, {
       where: { Id: version.IdJugador },
       transaction: t,
     });
 
-    // 2. Actualizar tabla VersionJugador
     await VersionJugadorModel.update(versionJugador, {
       where: { Id: idVersionJugador },
       transaction: t,
     });
 
-    // 3. Reemplazar posiciones — DELETE + INSERT
     await VersionJugadorPosicionModel.destroy({
       where: { IdVersionJugador: idVersionJugador },
       transaction: t,
@@ -183,7 +176,6 @@ async actualizarCompleto({ idVersionJugador, jugador, versionJugador, posiciones
       { transaction: t }
     );
 
-    // 4. Reemplazar skills — DELETE + INSERT
     await VersionJugadorSkillModel.destroy({
       where: { IdVersionJugador: idVersionJugador },
       transaction: t,

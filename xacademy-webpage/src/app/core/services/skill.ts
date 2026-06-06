@@ -11,14 +11,12 @@ export class SkillService {
 
   constructor(private http: HttpClient) {}
 
-  // Obtener listado de skills disponibles para el radar chart y formularios
   getSkills() {
     return this.http.get<Skill[]>(`${this.API}/skill`, {
       withCredentials: true
     });
   }
 
-  // Evolución de una skill específica a lo largo del tiempo
   getSkillEvolution(idJugador: number, skillId: number) {
     return this.http.get<SkillEvolution[]>(
       `${this.API}/jugador/${idJugador}/evolucion`,

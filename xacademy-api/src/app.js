@@ -68,16 +68,10 @@ app.use(passport.initialize());
  
 app.use(silentRefresh);
 
-// Servir imágenes estáticas
- 
 app.use('/img', express.static(path.join(__dirname, '../img')));
- 
-// Swagger UI
+
 app.use('/api/docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
-// API
 app.use('/api', indexRoutes);
- 
+
 export default app;
- 
- 
