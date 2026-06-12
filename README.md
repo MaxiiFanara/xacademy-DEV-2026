@@ -1,4 +1,4 @@
-# Documentación Técnica — XAcademy DEV 2026
+3# Documentación Técnica — XAcademy DEV 2026
 
 ---
 
@@ -289,7 +289,7 @@ UNIQUE en `(IdJugador, IdVersion)` — un jugador no puede tener dos registros e
 
 La `Calificacion` nunca se calcula en una query de listado. El backend la calcula al crear/editar un jugador y la guarda en transacción. Para importación CSV se hace un UPDATE masivo al final.
 
-> **Inconsistencia conocida:** el endpoint `POST /api/jugador` (creación manual) valida que la `calificacion` enviada coincida con el promedio de skills calculado internamente. El endpoint `POST /api/jugador/import` (CSV) almacena el valor de `calificacion` que viene en el archivo sin recalcularlo ni validarlo. Si el CSV tiene `calificacion=99` con skills promedio 50, la DB queda con 99. Es intencional para respetar los datos del juego base, pero permite inconsistencias si se editan CSVs a mano.
+
 
 ---
 
