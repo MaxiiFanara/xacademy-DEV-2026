@@ -6,12 +6,12 @@
 
 | Capa | Tecnología | Versión / Detalle |
 |---|---|---|
-| Frontend | Angular | 20, con Zoneless Change Detection |
-| UI Library | PrimeNG | Tema Aura, dark mode con `.dark-mode` class |
+| Frontend | Angular | 20 |
+| UI Library | PrimeNG | timeLine |
 | API | Node.js + Express | ESM (módulos nativos), Express 5 |
 | ORM | Sequelize | MySQL dialect, sin timestamps automáticos |
 | Base de datos | MySQL | 8.0, charset utf8mb4 |
-| IA local | Ollama | Modelo `gemma3:latest` (3.34 GB) |
+| IA local | Ollama | Modelo `gemma3:latest` |
 | Servidor estático | Nginx | Sirve el build de Angular y hace proxy reverso a la API |
 | Orquestación | Docker Compose | 5 servicios: db, ollama, ollama-init, api, frontend |
 
